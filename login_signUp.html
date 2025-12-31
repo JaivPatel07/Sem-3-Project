@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            height: 100dvh;
+            justify-content: center;
+            align-items: center;
+            background-color: #e0e0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+        }
+
+        .content-box {
+            height: 75dvh;
+            width: 100%;
+            max-width: 900px; /* Limits size on large screens */
+            background-color: white;
+            border-radius: 30px;
+            display: flex;
+            overflow: hidden;
+            flex-direction: row;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .band-box {
+            position: relative;
+            height: 100%;
+            width: 45%;
+            background: linear-gradient(135deg, rgb(40, 58, 158), rgb(78, 78, 165));
+            color: white;            
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .band-box p {
+            position: relative;
+            z-index: 2;
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        .circle-decoration {
+            position: absolute;
+            top: -50px;
+            left: -50px;
+            height: 200px;
+            width: 200px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .circle-2 {
+            top: auto;
+            bottom: -50px;
+            left: auto;
+            right: -20px;
+            height: 150px;
+            width: 150px;
+        }
+
+        .form-box {
+            height: 100%;
+            width: 55%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .form-box-body {
+            width: 100%;
+            max-width: 350px; 
+        }
+
+        .form-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .form-box label {
+            margin-top: 15px;
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-box input {
+            padding: 12px;
+            width: 100%; /* Responsive width */
+            margin-top: 8px;
+            outline: 0;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 15px;
+            transition: border 0.3s ease;
+        }
+
+        .form-box input:focus {
+            border-color: blue;
+        }
+
+        .form-box button {
+            display: block;
+            margin-top: 20px;
+            border: 0;
+            background-color: blue;
+            color: white;
+            width: 100%; /* Responsive width */
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+        }
+
+        .form-box button:hover {
+            opacity: 0.9;
+        }
+
+        .non-active {
+            display: none;
+        }
+
+        .error {
+            display: none;
+            color: #ff4d4d;
+            font-size: 11px;
+            margin-top: 5px;
+            font-weight: 500;
+        }
+
+        .show_error {
+            display: block;
+        }
+
+
+
+        @media (max-width: 768px) {
+            .content-box {
+                flex-direction: column;
+                height: auto;
+                min-height: 80vh;
+            }
+
+            .band-box {
+                width: 100%;
+                height: 200px;
+                padding: 30px;
+                text-align: center;
+            }
+
+            .band-box p {
+                text-align: center;
+            }
+
+            .form-box {
+                width: 100%;
+                padding: 40px 20px;
+            }
+            
+            .circle-2 {
+                bottom: -30px;
+                right: -30px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="content-box">
+        <div class="band-box">
+            <!-- <h2 style="font-size: 2rem;">EduSphere</h2> -->
+            <p><h2 style="font-size: 2rem; margin-bottom: 10px;">EduSphere</h2>Skill Up your self by learning with<br>our worl-class courses and expert mentors.</p>
+            <div class="circle-decoration"></div>
+            <div class="circle-decoration circle-2"></div>
+        </div>
+
+        <div class="form-box">
+            <div class="form-box-body">
+                <div class="form-title">Welcome Back</div>
+                <p style="font-size: 12px; margin-top: 5px;">Please enter your details to move.</p>
+
+                <form action="#">
+                    <div id="name-field" class="non-active">
+                        <label for="name">Name</label>
+                        <input type="name" placeholder="name" id="user_name" required>
+                    </div>
+                    
+                    <label for="email">Email Address</label>
+                    <input type="email" placeholder="name@gmail.com" id="user_email" required>
+                    <span class="error">Enter Valid Email Formate!!!</span>
+                    
+
+                    <label for="pass">Password</label>
+                    <input type="password" placeholder="Password..." id="user_pass" required>
+                    <span class="error">Enter Valid Password Formate!!!</span>
+
+
+                    <button type="submit" id="sub_btn">Sign In</button>
+                    <button style="background-color: white; color: blue; margin: 2px;" id="btn">Sign up</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const title = document.querySelector('.form-title')
+        const name_field = document.getElementById('name-field')
+        const btn = document.getElementById('btn')
+        const submit_btn = document.getElementById('sub_btn')
+
+
+        const user_name = document.getElementById('user_name')
+        const user_email = document.getElementById('user_email')
+        const user_pass = document.getElementById('user_pass')
+
+        const email_error = document.getElementsByClassName('error')[0]
+        const pass_error = document.getElementsByClassName('error')[1]
+
+        let signup = false;
+        btn.addEventListener('click',() => {
+            signup = !signup
+
+            if (signup) {
+                title.innerHTML = 'Create Account'
+                name_field.classList.remove('non-active')
+                submit_btn.innerText = 'Sign up'
+                btn.innerText = 'Sign in'
+            }
+            else {
+                title.innerHTML = 'Welcome Back'
+                name_field.classList.add('non-active')
+                submit_btn.innerText = 'Sign in'
+                btn.innerText = 'Sign up'
+            }
+
+        })
+
+        user_data = {}
+        submit_btn.addEventListener('click',(e) => {
+            e.preventDefault()
+            if (user_name) {
+                user_data.name = user_name.value
+            }
+            if (user_email && user_email.value.length>=13 && user_email.value.endsWith('@gmail.com')) {
+                user_data.email = user_email.value
+                email_error.classList.remove('show_error')
+            }
+            else {
+                email_error.classList.add('show_error')
+            }
+            if (user_pass && user_pass.value.length>6 && (user_pass.value.includes('@') || user_pass.value.includes('_'))) {
+                user_data.password = user_pass.value
+                pass_error.classList.remove('show_error')
+            }
+            else {
+                pass_error.classList.add('show_error')
+            }
+            console.log(user_data)
+        })
+
+    </script>
+</body>
+</html>
