@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMS Platform</title>
+    <link rel="stylesheet" href="firstpage.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+</head>
+
+<body>
+
+<header>
+    <nav id="navbar">
+        <div class="logo">LMS Platform</div>
+        <button id="menu-btn">☰</button>
+        <div class="menu-container">
+            <a href="#" class="navitems">Browse Courses</a>
+            <a href="#" class="navitems">Login</a>
+            <a href="#" class="navitems" id="start">Get Started</a>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <section class="main-heading">
+      
+        <h1 class="h1">
+            Master New Skill with<br>
+            Expert-Led Courses
+        </h1>
+        <div class="temp">
+            <a href="#" id="browsebtn" class="a">Browse Courses</a>
+            <a href="#" id="free" class="a">Start Learning Free</a>
+        </div>
+    </section>
+
+    <section class="main-about-us">
+        <h1>About Us</h1>
+        <p>
+            Welcome to EduSphere, your premier destination for online learning. We are dedicated to providing high-quality courses that empower individuals to acquire new skills and advance their careers. Our platform offers a diverse range of subjects, from technology and business to arts and personal development, all taught by industry experts. Join us today and embark on a journey of lifelong learning and growth. 
+        </p>
+    </section>
+
+    <section class="featured-courses">
+        <h2>Explore Popular Courses</h2>
+        <div class="course-grid">
+            <div class="course-card">
+                <i class="bi bi-code-slash" style="font-size: 2rem;"></i>
+                <h3>Web Development</h3>
+                <p>Master HTML, CSS, and JavaScript from scratch.</p>
+                <a href="#" class="course-btn">View Course</a>
+            </div>
+            <div class="course-card">
+                <i class="bi bi-bar-chart-line" style="font-size: 2rem;"></i>
+                <h3>Data Science</h3>
+                <p>Learn Python, SQL, and Machine Learning basics.</p>
+                <a href="#" class="course-btn">View Course</a>
+            </div>
+            <div class="course-card">
+                <i class="bi bi-megaphone" style="font-size: 2rem;"></i>
+                <h3>Digital Marketing</h3>
+                <p>Grow your business with SEO and Social Media.</p>
+                <a href="#" class="course-btn">View Course</a>
+            </div>
+        </div>
+    </section>
+    
+    <section class="features-section">
+        <h2>Why Choose Us</h2>
+        <div class="features-grid">
+            <div class="feature-item">
+                <i class="bi bi-award"></i>
+                <h3>Expert Instructors</h3>
+                <p>Learn from industry experts who are passionate about teaching.</p>
+            </div>
+            <div class="feature-item">
+                <i class="bi bi-patch-check"></i>
+                <h3>Certificates</h3>
+                <p>Earn a certificate of completion for every course you finish.</p>
+            </div>
+            <div class="feature-item">
+                <i class="bi bi-camera-video"></i>
+                <h3>High Quality Video</h3>
+                <p>Enjoy high-definition video lessons with clear audio.</p>
+            </div>
+        </div>
+    </section>
+
+
+</main>
+
+<footer class="footer">
+  <div class="footer-container">
+
+    <!-- About -->
+    <div class="footer-box">
+      <h3>EduSphere</h3>
+      <p>
+        We provide high-quality online courses to help students learn real-world skills and grow their careers.
+      </p>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="footer-box">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/about">About Us</a></li>
+        <li><a href="/courses">Courses</a></li>
+      </ul>
+    </div>
+
+    <!-- Support -->
+    <div class="footer-box">
+      <h4>Support</h4>
+      <ul>
+        <li><a href="/faq">FAQ</a></li>
+        <li><a href="/help">Help Center</a></li>
+        <li><a href="/privacy">Privacy Policy</a></li>
+        <li><a href="/terms">Terms & Conditions</a></li>
+      </ul>
+    </div>
+
+
+  </div>
+
+  <!-- Bottom -->
+  <div class="footer-bottom">
+    <div class="social-icons">
+        <i class="bi bi-envelope"></i>
+        <i class="bi bi-linkedin"></i>
+        <i class="bi bi-github"></i>
+    </div>
+    <p>© 2026 YourWebsite. All rights reserved.</p>
+  </div>
+</footer>
+
+
+<script>
+    const btn = document.getElementById("menu-btn");
+    const menu = document.querySelector(".menu-container");
+
+    btn.addEventListener("click", () => {
+        menu.classList.toggle("show");
+    });
+
+    const nav = document.getElementById("navbar");
+
+    window.addEventListener("scroll", () => {
+      nav.classList.toggle("scrolled", window.scrollY > 60);
+    });
+
+</script>
+
+</body>
+</html>
