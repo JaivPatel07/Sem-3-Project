@@ -13,14 +13,33 @@ html {
 
 body {
     overflow-x: hidden;
-    font-family: system-ui, sans-serif;
+    font-family: 'Poppins', system-ui, sans-serif;
     animation: fadeIn 0.8s ease-in-out;
+}
+
+/* LOADER */
+#loader {
+    position: fixed;
+    inset: 0;
+    background: #fff;
+    z-index: 9999;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+#loader.hide {
+    opacity: 0;
+    visibility: hidden;
 }
 
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
 }
+
+section {
+  scroll-margin-top: 90px;
+}
+
 
 #navbar {
     display: flex;
@@ -40,6 +59,8 @@ body {
     backdrop-filter: blur(10px);
 }
 
+
+
 .logo {
     font-size: 20px;
     font-weight: bold;
@@ -48,18 +69,45 @@ body {
 .menu-container {
     display: flex;
     align-items: center;
+    z-index: 2000;
 }
 
 .navitems {
+    position: relative;
     text-decoration: none;
     padding: 10px 20px;
     color: var(--theame);
+    font-weight: 500;
 }
+
+.navitems::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 4px;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(135deg, var(--theame), #5b54a8);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.navitems:hover::after {
+    width: 50%;
+}
+
+
 
 #start {
     background: linear-gradient(135deg, var(--theame), #5b54a8);
     color: white;
     border-radius: 10px;
+    padding: 10px 20px;
+    text-decoration: none;
+}
+#start:hover {
+    box-shadow: 0 5px 15px rgba(91, 84, 168, 0.3);
+    transform: translateY(-1px);
 }
 
 /* MOBILE MENU BUTTON */
@@ -69,22 +117,22 @@ body {
     background: none;
     border: none;
     cursor: pointer;
-
 }
+
 
 /* MAIN */
 .main-heading {
-    height: auto;
     min-height: 100vh;
+    padding-top: 100px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
     position: relative;
-    z-index: -1;
     background: linear-gradient(to bottom, #a6b1f9, #ffffff);
 }
+
 
 .hero-title {
     font-size: 60px;
@@ -95,9 +143,18 @@ body {
     color: transparent;
     animation: fadeInUp 1s ease-in-out;
 }
+.hero-subtitle {
+    margin-top: 6px;
+    font-size: 18px;
+    color: #4a4a6a;
+    max-width: 600px;
+
+    animation: fadeInUp 1s ease-in-out;
+}
+
 
 .hero-buttons {
-    margin-top: 20px;
+    margin-top: 10px;
     display: flex;
     gap: 15px;
     flex-wrap: wrap;
@@ -205,6 +262,29 @@ body {
     border-radius: 30px;
     transition: all 0.3s ease;
 }
+.badge-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.course-badge {
+    padding: 5px 12px;
+    font-size: 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+}
+.course-badge.beginner {
+    background: rgba(91, 84, 168, 0.15);
+    color: #5b54a8;
+}
+
+.course-badge.popular {
+    background: rgba(255, 193, 7, 0.15);
+    color: #c69500;
+}
+
 
 .course-btn:hover {
     background-color: var(--theame);
@@ -552,6 +632,29 @@ body {
     color: #00bcd4;
     transform: translateY(-3px);
 }
+
+#backToTop {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: none;
+    background-color: rgb(88, 88, 164);
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    display: none;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    z-index: 3000;
+}
+
+#backToTop:hover {
+    transform: translateY(-4px);
+}
+
 
 /* ================= RESPONSIVE ================= */
 
