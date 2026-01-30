@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMS Platform</title>
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/index.css')}}">
+
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div id="loader" class="d-flex justify-content-center align-items-center">
+        <div class="spinner-border text-primary" role="status" aria-label="Loading">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <header>
+        <nav id="navbar">
+            <div class="logo"><i class="bi bi-globe2"></i> EduSphere</div>
+            <button id="menu-btn">☰</button>
+            <div class="menu-container">
+                <a href="#about-us" class="navitems">About Us</a>
+                <a href="#courses" class="navitems">Courses</a>
+                <a href="#contact" class="navitems">Contact</a>
+                <a href="/login" id="start">Get Started</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="main-heading">
+        <h1 class="hero-title">
+            Master New Skill with<br>
+            Expert-Led Courses
+        </h1>
+        <p class="hero-subtitle">
+            Learn anytime, anywhere with industry-ready courses
+        </p>
+        <div class="hero-buttons">
+            <a href="#courses" id="browse-courses-btn" class="hero-btn">Browse Courses</a>
+            <a href="/login" id="start-free-btn" class="hero-btn">Start Learning</a>
+        </div>
+    </section>
+
+    <section class="main-about-us" id="about-us">
+        <h1>About Us</h1>
+        <p>
+            Welcome to EduSphere, a learning platform built for students who want to grow beyond textbooks. We help you learn practical, real-world skills that actually matter for internships, placements, and future careers. Our courses cover technology, business, creative fields, and personal development—taught in a simple, easy-to-understand way by experienced mentors. Whether you’re just starting out or upgrading your skills, EduSphere is here to support your learning journey every step of the way. Start learning today and build a better future with confidence. 
+        </p>
+    </section>
+
+    <section class="featured-courses" id="courses">
+        <h2>Explore Popular Courses</h2>
+        <div class="course-grid">
+            <div class="course-card">
+
+                <i class="bi bi-code-slash course-icon"></i>
+                <div class="badge-container">
+                    <span class="course-badge beginner">Beginner</span>
+                    <span class="course-badge popular">Popular</span>
+                </div>
+
+                <h3>Web Development</h3>
+                <p>Master HTML, CSS, and JavaScript from scratch.</p>
+                <a href="#" class="course-btn">View Course</a>
+            </div>
+            <div class="course-card">
+                <i class="bi bi-bar-chart-line course-icon"></i>
+                <div class="badge-container">
+                    <span class="course-badge beginner">Intermediate</span>
+                    <span class="course-badge popular">Popular</span>
+                </div>
+                <h3>Data Science</h3>
+                <p>Learn Python, SQL, and Machine Learning basics.</p>
+                <a href="#" class="course-btn">View Course</a>
+            </div>
+            <div class="course-card">
+                <i class="bi bi-megaphone course-icon"></i>
+                <div class="badge-container">
+                    <span class="course-badge beginner">Beginner</span>
+                    <span class="course-badge popular">Popular</span>
+                </div>
+                <h3>Digital Marketing</h3>
+                <p>Grow your business with SEO and Social Media.</p>
+                <a href="#" class="course-btn">View Course</a>
+            </div>
+        </div>
+        <div class="explore-more-container">
+            <a href="#" class="explore-btn">Explore More Courses </a>
+        </div>
+    </section>
+    
+    <section class="features-section">
+        <h2>Why Choose Us</h2>
+        <div class="features-grid">
+            <div class="feature-item">
+                <i class="bi bi-award"></i>
+                <h3>Expert Instructors</h3>
+                <p>Learn from industry experts who are passionate about teaching.</p>
+            </div>
+            <div class="feature-item">
+                <i class="bi bi-patch-check"></i>
+                <h3>Certificates</h3>
+                <p>Earn a certificate of completion for every course you finish.</p>
+            </div>
+            <div class="feature-item">
+                <i class="bi bi-camera-video"></i>
+                <h3>High Quality Video</h3>
+                <p>Enjoy high-definition video lessons with clear audio.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="reviews-section">
+    <h2>What Our Students Say</h2>
+    <div class="reviews-grid">
+        <div class="review-card">
+            <div class="stars">
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+            </div>
+            <p>
+                "I had zero confidence in UI/UX when I started, but the way everything was explained made it so easy to understand. 
+                The projects felt real, not just theory. This course genuinely helped me crack my first design role."
+            </p>
+            <div class="reviewer-info">
+                <div class="reviewer-avatar">AK</div>
+                <div>
+                    <h4>Amit Kumar</h4>
+                    <span>UI/UX Designer</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="review-card">
+            <div class="stars">
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star"></i>
+            </div>
+            <p>
+                "As a college student, I wanted practical Data Science skills, not just lectures. 
+                The hands-on projects and assignments really cleared my concepts. 
+                I now feel confident applying for internships."
+            </p>
+            <div class="reviewer-info">
+                <div class="reviewer-avatar">RS</div>
+                <div>
+                    <h4>Rohit Sharma</h4>
+                    <span>Data Analyst</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="review-card">
+            <div class="stars">
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-half"></i>
+            </div>
+            <p>
+                "The Digital Marketing course was very practical and up to date. 
+                The SEO and social media strategies I learned helped me get my first freelance client within a month.
+                Totally worth it!"
+            </p>
+            <div class="reviewer-info">
+                <div class="reviewer-avatar">NP</div>
+                <div>
+                    <h4>Neha Patel</h4>
+                    <span>Digital Marketer</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    </section>
+
+
+    <section class="faq-section" id="faq">
+        <h2 class="faq-title">Frequently Asked Questions</h2>
+        <p class="faq-subtitle">Everything you need to know before getting started</p>
+
+        <div class="faq-accordion">
+
+            <div class="faq-item">
+                <button class="faq-question">
+                    How do I enroll in a course?
+                </button>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Browse our courses, open the course you like, and click
+                        <strong>“View Course”</strong>. Follow the simple enrollment steps.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question">
+                    Are the certificates recognized?
+                </button>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Yes! Our certificates are shareable on LinkedIn and can be added to
+                        your resume.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question">
+                    Can I access courses on mobile?
+                </button>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Absolutely! EduSphere works perfectly on mobile, tablet, and desktop.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+    </main>
+
+<footer class="footer" id="contact">
+  <div class="footer-container">
+
+    <div class="footer-box">
+        <h3>EduSphere</h3>
+        <p>
+            We provide high-quality online courses to help students learn real-world skills and grow their careers.
+        </p>
+    </div>
+
+    <div class="footer-box">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/about">About Us</a></li>
+        <li><a href="/courses">Courses</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-box">
+      <h4>Support</h4>
+      <ul>
+        <li><a href="/faq">FAQ</a></li>
+        <li><a href="/help">Help Center</a></li>
+        <li><a href="/privacy">Privacy Policy</a></li>
+        <li><a href="/terms">Terms & Conditions</a></li>
+      </ul>
+    </div>
+
+
+  </div>
+  <div class="footer-bottom">
+    <div class="social-icons">
+        <i class="bi bi-envelope"></i>
+        <i class="bi bi-linkedin"></i>
+        <i class="bi bi-github"></i>
+    </div>
+    <p>© 2026 EduSphere. All rights reserved.</p>
+  </div>
+</footer>
+
+<button id="backToTop" aria-label="Back to top"><i class="bi bi-arrow-up-circle-fill"></i></button>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+<script>
+    const btn = document.getElementById("menu-btn");
+    const menu = document.querySelector(".menu-container");
+
+    // Toggle menu on small screens
+    btn.addEventListener("click", () => { 
+        menu.classList.toggle("show");
+    });
+
+    const nav = document.getElementById("navbar");
+
+    // Change navbar style on scroll
+    window.addEventListener("scroll", () => { 
+        nav.classList.toggle("scrolled", window.scrollY > 60);    
+    });
+
+    // FAQ accordion functionality
+    const faqQuestions = document.querySelectorAll(".faq-question");
+
+    faqQuestions.forEach(question => { 
+        question.addEventListener("click", () => { 
+            // Toggle answer visibility
+            const item = question.parentElement;
+            const answer = item.querySelector(".faq-answer");
+            
+            // Close other answers
+            document.querySelectorAll(".faq-item").forEach(otherItem => {
+                if (otherItem !== item) {
+                    otherItem.classList.remove("active");
+                    otherItem.querySelector(".faq-answer").style.maxHeight = null;
+                }
+            });
+            
+            item.classList.toggle("active");
+            if (item.classList.contains("active")) {
+                answer.style.maxHeight = answer.scrollHeight + "px";
+            } else {
+                answer.style.maxHeight = null;
+            }
+        });
+    });
+
+    // Close menu on nav item click (for small screens)
+    document.querySelectorAll(".navitems").forEach(item => { 
+        item.addEventListener("click", () => {
+            menu.classList.remove("show");
+        });
+    });
+
+    // Back to Top Button Logic
+    const backToTop = document.getElementById("backToTop");
+
+    window.addEventListener("scroll", () => {
+        backToTop.style.display = window.scrollY > 300 ? "block" : "none";
+    });
+
+    backToTop.addEventListener("click", () => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    // Hide loader on window load
+    window.addEventListener("load", () => {
+        const loader = document.getElementById("loader");
+        loader.classList.add("hide");
+    });
+</script>
+
+
+</body>
+</html>

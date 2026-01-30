@@ -1,0 +1,43 @@
+
+<!-- navbar--------------------------------------------- -->
+<nav class="navbar navbar-expand-xxl text-white sticky-top">
+    <div class="container-fluid">
+        <a class="navbar-brand ms-2 fw-bold d-flex align-items-center gap-2" href="#" style="color: #fff; font-size: 1.5rem;">
+            <i class="bi bi-globe2"></i> EduSphere
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+            <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-4">
+                <li class="nav-item">
+                    <a class="nav-link" aria-current="page" href="/home">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/publishCourse">Publish Course</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link" href="#" role="button">Certificates</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link" href="#showCourses" role="button">Courses</a>
+                </li>
+            </ul>
+
+
+            <!-- nav bar second part for search and user input field---------- -->
+            <div class="nav_second_part">
+                <form class="d-flex" role="search">
+                    <input type="search" class="form-control search_field border-start-0" placeholder="Search for courses..." style="width: 25dvw; min-width: 250px;">
+                </form>
+
+                <div class="user_logo ms-4 me-3">
+                    <i class="bi bi-person-circle" style="font-size: 1.5rem;"></i>
+                    <strong class="d-none d-md-block page_user_name" style="margin-left: 10px; margin-bottom: 2px;">Profile</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
