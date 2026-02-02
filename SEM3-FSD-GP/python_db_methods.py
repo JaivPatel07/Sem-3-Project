@@ -8,7 +8,7 @@ class MyDataMethods:
         return psycopg2.connect(
             host='localhost',
             user='postgres',
-            password='@1157Dipikass',
+            password='your password',
             dbname='eduSphere',
             port='5432'
         )
@@ -326,4 +326,5 @@ class MyDataMethods:
 
 if __name__ == '__main__':
     xx = MyDataMethods()
+
     print(xx.getParticularCourseDetail(3))
