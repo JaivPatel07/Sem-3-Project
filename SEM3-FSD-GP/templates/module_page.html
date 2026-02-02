@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LMS Course Player</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/home_page.css') }}">
+
+    
+    <style>
+        body {
+            background-color: #ebedef;
+        }
+
+        .chapter-sidebar {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 15px;
+            height: 100%;
+        }
+
+        .course-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .chapter-status {
+            font-size: 13px;
+            color: green;
+        }
+
+        .video-container {
+            visibility: hidden;
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 15px;
+        }
+        .yt-video iframe {
+            height: 500px;
+            width: 100%;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        #notes div {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+        }
+        #quiz_options {
+            display: flex;
+            flex-direction: column;
+            margin: 15px;
+            gap: 5px;
+            padding-left: 15px;
+        }
+        @media (max-width: 768px) {
+            
+            .sidebar {
+                margin-bottom: 15px;
+            }
+        }
+        @media (max-width: 600px) {
+            .yt-video iframe {
+                height: 200px;
+            }
+            .sidebar {
+                margin-bottom: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    {% include 'navbar.html' %}
+
+    <div class="container-fluid py-3">
+        <div class="row g-3">
+
+            <!-- left side of page -->
+            <div class="col-lg-3 col-md-5">
+
+                <div class="chapter-sidebar">
+                    <h6 class="course-title text-secondary">Course Title:</h6>
+                    <h5  style="line-height: 10px; border-bottom: 2px solid grey; padding: 0 0 20px 5px;" id="course-title" current_course_id="{{ course_id }}"></h5>
+                    
+                    <div class="list-group mt-4" id="course-chapters">
+                        <!-- these part will be added from js------------- -->
+                        <!-- <button class="list-group-item list-group-item-secondary text-start mb-2 rounded"> Chapter 1: Introduction</button> -->
+                    </div>
+
+                    <button class="btn btn-info w-100" onclick="showQuizDetails()">Quiz</button>
+                </div>
+            </div>
+
+
+            <!-- right side of page -->
+            <div class="col-lg-9 col-md-7">
+
+                <div class="video-container">
+
+                    <!-- chapter video -->
+                    <div class="yt-video">
+                        <iframe width="560" height="315" src="" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                    </div>
+
+                    <!-- vidro title -->
+                    <h5 id="video-title" style="font-weight: 700;">---</h5>
+
+                    <!-- chapter tabsssssss -->
+                    <ul class="nav nav-tabs mt-3" role="tablist">
+                        <li class="nav-item">
+                            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#overview">Overview</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#notes">Notes</button>
+                        </li>
+                    </ul>
+
+                    <!-- to add tab content -->
+                    <div class="tab-content border border-top-0 p-3">
+                        <div class="tab-pane fade show active" id="overview">
+                            <p></p>
+                        </div>
+
+
+                        <div class="tab-pane fade" id="notes">
+                            <div>
+                                <a href="#" id="notes_url"></a>
+                                <i class="bi bi-download"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-3">
+                        <button class="btn btn-outline-primary" chapter_id="" onclick="markComplete(this)" id="markCompleteBtn">Mark As Completed</button>
+                    </div>
+                    
+                </div>
+
+                <!-- quiz info section (hidden by default) -->
+                <div class="quiz-info-container d-none bg-white rounded p-4">
+
+                    <h4 class="fw-bold mb-3">Graded Quiz</h4>
+
+                    <ul class="list-group mb-3">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Quiz Subject</span>
+                            <strong id="quiz_name">Module 1 Quiz</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Type</span>
+                            <strong id="quiz_type">Graded</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Duration</span>
+                            <strong id="quiz_duration">1 Minutes</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Attempts left</span>
+                            <strong id="quiz_attempts">1</strong>
+                        </li>
+                    </ul>
+
+                    <button class="btn btn-outline-primary" data-bs-target="#quiz_box" data-bs-toggle="modal" id="start_quiz">Start Quiz</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- quiz modal box-------------------  -->
+    <div class="modal modal-lg fade" id="quiz_box" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <div class="modal-title d-flex gap-2">
+                        <h3>Quiz</h3>
+                        <span id="timer" class="badge bg-danger fs-6">05:00</span>
+                    </div>
+                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <!-- questions will loaded using js------------ -->
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-info" id="next_btn">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static',filename='js/module_page.js') }}"></script>
+</body>
+</html>

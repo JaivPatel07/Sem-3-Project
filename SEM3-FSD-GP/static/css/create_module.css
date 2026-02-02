@@ -1,0 +1,86 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', system-ui, sans-serif;
+}
+
+body {
+    background-color: rgb(212, 212, 208);
+}
+
+
+.main-body {
+    width: 95%;
+    margin: 20px auto;
+    display: flex;
+    gap: 1.2rem;
+}
+
+.module-details {
+    height: fit-content;
+    width: 35%;
+    background-color: white;
+    border-radius: 10px;
+}
+
+.module-details h3 {
+    margin: 20px;
+    font-size: x-large;
+    font-weight: 700;
+}
+
+form {
+    margin: 20px;
+}
+
+form label {
+    font-weight: 700;
+}
+
+
+.module-chapter {
+    /* height: 200px; */
+    width: 70%;
+    background-color: white;
+    border-radius: 10px;
+}
+.header {
+    margin: 20px;
+    font-size: x-large;
+    font-weight: 700;
+    display: flex;
+    justify-content: space-between;
+}
+.header h3 {
+    font-size: x-large;
+    font-weight: 700;
+}
+.chapter-form {
+    height: fit-content;
+    width: 90%;
+    margin: 10px auto;
+    border: 1px solid silver;
+    border-radius: 10px;
+}
+.chapter-form h3 {
+    background-color: rgb(107, 107, 205,0.3); 
+    padding: 10px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    margin: 0;
+}
+
+@media (max-width: 800px) {
+    .main-body {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .module-details {
+        width: 85%;
+    }
+    .module-chapter {
+        width: 85%;
+    }
+}
