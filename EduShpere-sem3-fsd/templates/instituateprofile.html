@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Pricing Dashboard</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            background: #f4f6f9;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .dashboard-header {
+            background: linear-gradient(135deg, #4e73df, #224abe);
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+        }
+
+        .card-modern {
+            border: none;
+            border-radius: 16px;
+            transition: 0.3s ease;
+        }
+
+        .card-modern:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }
+
+        .stat-icon {
+            font-size: 26px;
+            padding: 14px;
+            border-radius: 12px;
+        }
+
+        .highest-badge {
+            background: #198754;
+            color: white;
+            padding: 6px 12px;
+            font-size: 13px;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container py-5">
+
+        <!-- HEADER -->
+        <div class="dashboard-header mb-5 shadow">
+            <h2 class="fw-bold">Pricing Dashboard</h2>
+            <p class="opacity-75 mb-0">
+                Monitor revenue & top performing courses
+            </p>
+        </div>
+
+        <!-- TOTAL BALANCE CARD -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-5">
+                <div class="card card-modern shadow-sm p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted">Total Balance</h6>
+                            <h3 class="fw-bold text-success">
+                                ₹ <span id="totalBalance">0</span>
+                            </h3>
+                        </div>
+                        <div class="stat-icon bg-success bg-opacity-10 text-success">
+                            <i class="bi bi-wallet2"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHART SECTION -->
+        <div class="card card-modern shadow-sm p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-semibold mb-0">Course Revenue Comparison</h5>
+                <span id="topCourseBadge" class="highest-badge d-none"></span>
+            </div>
+            <canvas id="revenueChart" height="400"></canvas>
+        </div>
+
+        <!-- BACK BUTTON -->
+        <div class="text-center mt-4">
+            <button class="btn btn-outline-dark px-4 py-2 rounded-pill shadow-sm"
+                    onclick="goBack()">
+                <i class="bi bi-arrow-left me-2"></i>
+                Back
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+
+        function goBack() {
+            window.history.back();
+        }
+
+        // Fetch revenue data from backend
+        fetch('/instituateReveneu')
+        .then(res => res.json())
+        .then(data => {
+            const courses_name = []
+            const courses_price = []
+            const courses_data = {};
+
+            data.forEach(element => {
+                const title = element.course_title;
+                const price = Number(element.course_price) || 0;
+
+                courses_data[title] = (courses_data[title] || 0) + price;            
+            });
+
+            Object.keys(courses_data).forEach(element => {
+                courses_name.push(element)
+                courses_price.push(courses_data[element])
+            })
+
+            // ✅ Calculate total balance
+            const totalBalance = courses_price.reduce((sum, price) => sum + price, 0);
+
+            document.getElementById("totalBalance").innerText =
+                totalBalance.toLocaleString();
+
+            // ✅ Find highest earning course
+            const maxRevenue = Math.max(...courses_price);
+            const maxIndex = courses_price.indexOf(maxRevenue);
+
+            const badge = document.getElementById("topCourseBadge");
+            badge.innerText =
+                `Top Course: ${courses_name[maxIndex]} (₹${maxRevenue.toLocaleString()})`;
+            badge.classList.remove("d-none");
+
+            // ✅ Create Revenue Chart
+            new Chart(document.getElementById('revenueChart'), {
+                type: 'bar',
+                data: {
+                    labels: courses_name,
+                    datasets: [{
+                        data: courses_price,
+                        backgroundColor: "#4e73df",
+                        borderRadius: 10
+                    }]
+                },
+                options: {
+                    plugins: { legend: { display: false } },
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: "#e3e6f0" }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+        })
+        .catch(error => {
+            console.error("Error fetching revenue data:", error);
+        });
+
+    </script>
+
+</body>
+</html>
