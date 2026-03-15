@@ -9,10 +9,18 @@
 <div class="card p-4" style="width:350px;">
     <h4 class="text-center mb-3">Enter OTP</h4>
 
+    {% if error %}
+    <div class="alert alert-danger py-2" role="alert">
+        {{ error }}
+    </div>
+    {% endif %}
+
     <form method="POST">
         <input type="number" name="otp" class="form-control mb-3" placeholder="Enter OTP" required>
         <button type="submit" class="btn btn-success w-100">Verify</button>
     </form>
+
+    <p class="text-muted small text-center mt-3 mb-0">OTP expires after a few minutes for security.</p>
 </div>
 
 </body>

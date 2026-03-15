@@ -1,525 +1,707 @@
-from flask import Flask,render_template,url_for,request,redirect,session,jsonify,make_response
 import csv
+import logging
+import os
+from datetime import datetime, timedelta, timezone
+from functools import wraps
 from io import StringIO
-from werkzeug.security import generate_password_hash,check_password_hash
-from python_db_methods import MyDataMethods
+
+from dotenv import load_dotenv
+from flask import Flask, jsonify, make_response, redirect, render_template, request, session, url_for
+from werkzeug.security import check_password_hash, generate_password_hash
+
 from myEmail import SendEmail
+from python_db_methods import MyDataMethods
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ENV_FILE = os.path.join(BASE_DIR, '.env')
+ENV_EXAMPLE_FILE = os.path.join(BASE_DIR, '.env.example')
+
+if os.path.exists(ENV_EXAMPLE_FILE):
+    load_dotenv(ENV_EXAMPLE_FILE)
+
+if os.path.exists(ENV_FILE):
+    load_dotenv(ENV_FILE, override=True)
+elif not os.path.exists(ENV_EXAMPLE_FILE):
+    load_dotenv()
+
+logging.basicConfig(level=os.getenv('LOG_LEVEL', 'INFO').upper())
+LOGGER = logging.getLogger(__name__)
+
+
+def _require_env(name):
+    value = os.getenv(name)
+    if value:
+        return value
+    raise RuntimeError(f'Missing required environment variable: {name}')
+
+
+def _int_env(name, default):
+    value = os.getenv(name)
+    if not value:
+        return default
+    try:
+        return int(value)
+    except ValueError as exc:
+        raise RuntimeError(f'Environment variable {name} must be an integer') from exc
+
+
+OTP_EXPIRY_MINUTES = _int_env('OTP_EXPIRY_MINUTES', 5)
+SESSION_LIFETIME_HOURS = _int_env('SESSION_LIFETIME_HOURS', 8)
+ADMIN_EMAIL = _require_env('ADMIN_EMAIL')
+ADMIN_PASSWORD = _require_env('ADMIN_PASSWORD')
 
 app = Flask(__name__)
-
-app.secret_key = 'secret123'
+app.config.update(
+    SECRET_KEY=_require_env('FLASK_SECRET_KEY'),
+    PERMANENT_SESSION_LIFETIME=timedelta(hours=SESSION_LIFETIME_HOURS),
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax',
+    SESSION_COOKIE_SECURE=os.getenv('SESSION_COOKIE_SECURE', 'false').lower() == 'true',
+)
 
 database = MyDataMethods()
 
 
-# for home-Page:--------------------------------------------
+def render_login(message='', mode='signin'):
+    return render_template('login_page.html', error={'mode': mode, 'msg': message})
+
+
+def json_error(message, status_code):
+    return jsonify({'error': message}), status_code
+
+
+def get_json_body():
+    return request.get_json(silent=True) or {}
+
+
+def parse_int(value, field_name, *, minimum=None):
+    try:
+        parsed_value = int(value)
+    except (TypeError, ValueError):
+        raise ValueError(f'{field_name} must be a valid integer')
+
+    if minimum is not None and parsed_value < minimum:
+        raise ValueError(f'{field_name} must be at least {minimum}')
+
+    return parsed_value
+
+
+def current_user_name():
+    user_name = database.getUserData2(session['user_id'])
+    return user_name[0] if user_name else None
+
+
+def login_user(user_id, email, *, is_instituate=False, is_admin=False):
+    session.clear()
+    session.permanent = True
+    session['user_id'] = user_id
+    session['user_email'] = email
+    session['isInstituate'] = is_instituate
+    session['is_admin'] = is_admin
+
+
+def clear_otp_state():
+    session.pop('otp', None)
+    session.pop('otp_expires_at', None)
+
+
+def start_institute_otp_flow(user_name, user_email):
+    otp = SendEmail.admin_login_email(user_name, user_email)
+    if otp is None:
+        return False
+    session['otp'] = otp
+    session['otp_expires_at'] = int(
+        (datetime.now(timezone.utc) + timedelta(minutes=OTP_EXPIRY_MINUTES)).timestamp()
+    )
+    return True
+
+
+def build_user_course_summary(user_id):
+    enrolled_courses = database.getEnrolledCourses(user_id)
+    results = database.getResultData2(user_id)
+    attempted_course_ids = {result['course_id'] for result in results}
+
+    course_data = []
+    completed_count = 0
+    certificate_count = 0
+
+    for result in results:
+        if result['score'] >= 50:
+            certificate_count += 1
+
+    for course in enrolled_courses:
+        progress = database.getCourseProgress(user_id, course['course_id'])
+        attempted_quiz = course['course_id'] in attempted_course_ids
+
+        if progress == 100 and attempted_quiz:
+            completed_count += 1
+
+        if not attempted_quiz and progress > 0:
+            progress -= 1
+
+        course_data.append(
+            {
+                'course_id': course['course_id'],
+                'course_title': course['course_title'],
+                'course_progress': progress,
+            }
+        )
+
+    return course_data, completed_count, certificate_count
+
+
+def require_auth(*, api=False, institute=False, admin=False):
+    def decorator(view_func):
+        @wraps(view_func)
+        def wrapper(*args, **kwargs):
+            if admin:
+                if not session.get('is_admin'):
+                    if api:
+                        return json_error('Unauthorized', 403)
+                    return redirect(url_for('admin_login_page'))
+                return view_func(*args, **kwargs)
+
+            if not session.get('user_id') or session.get('is_admin'):
+                if api:
+                    return json_error('Unauthorized', 401)
+                return redirect(url_for('login_page'))
+
+            if institute and not session.get('isInstituate'):
+                if api:
+                    return json_error('Forbidden', 403)
+                return redirect(url_for('user_home_page'))
+
+            return view_func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+
 @app.route('/')
 def index_page():
     return render_template('index.html')
 
 
-# for login-Page:---------------------------------------------
 @app.route('/login', methods=['GET', 'POST'])
 def login_page():
     if request.method == 'POST':
         data = request.form
-        
-        # if signup page is open---------------------
-        if len(list(data))>=3:
-            # to check user already there or not---
-            if not database.getUserData(data['user_email']):
-                # print('xxx')
-                database.addUser(data['user_name'],data['user_email'],generate_password_hash(data['user_pass']))
-                # to add user id and work in session storage---------------------
+        user_email = (data.get('user_email') or '').strip().lower()
+        user_password = (data.get('user_pass') or '').strip()
+        user_name = (data.get('user_name') or '').strip()
+        is_signup = bool(user_name)
 
-                session['user_id'] = database.getUserData(data['user_email'])[0]
+        if not user_email or not user_password:
+            return render_login('Email and password are required.', 'signup' if is_signup else 'signin')
 
-                # to check wheather it is instituate or not---------
-                isInstituate = True if 'roleCheck' in data else False
-                if isInstituate:
-                    database.addInstituate(session['user_id'])
+        if is_signup:
+            if not user_name:
+                return render_login('Name is required to create an account.', 'signup')
 
-                session['isInstituate'] = database.isInstituate(session['user_id'])
-                session['user_email'] = data['user_email']
-                # to launch the page instance or user_home_page---------
-                if session['isInstituate']:
-                    # return redirect(url_for('instituate_page'))
-                    return render_template('login_page.html',error={'mode':'signin','msg':''})
-                     
-                return redirect(url_for('user_home_page'))
-            
-            else:
-                return render_template('login_page.html',error={'mode':'signup','msg':'User Already Exits!!!'})
-            
+            if database.getUserData(user_email):
+                return render_login('User already exists.', 'signup')
 
-        # when signin page is open----------
-        else:
-            real_passwd = database.verifyUser(data['user_email'])
-            if real_passwd and check_password_hash(real_passwd,data['user_pass']):
-                # to add user id in session storage---------------------
-                session['user_id'] = database.getUserData(data['user_email'])[0]
-                session['isInstituate'] = database.isInstituate(session['user_id'])
+            database.addUser(user_name, user_email, generate_password_hash(user_password))
+            user_record = database.getUserData(user_email)
+            if not user_record:
+                LOGGER.error('User signup completed but user could not be reloaded: %s', user_email)
+                return render_login('Unable to create account right now.', 'signup')
 
-                session['user_email'] = data['user_email']
+            if 'roleCheck' in data:
+                database.addInstituate(user_record[0])
+                return render_login('Institute account created. Sign in to verify your OTP.', 'signin')
 
-                if session['isInstituate']:
-                    user_name = database.getUserData2(session['user_id'])
-                    ori_otp = SendEmail.admin_login_email(user_name)
-                    session['otp'] = ori_otp
-                    return redirect(url_for('otp_page'))
-                
-                
-                return redirect(url_for('user_home_page'))
-            
-            else:
-                return render_template('login_page.html',error={'mode':'signin','msg':'No Such User Data Founded!!!'})
+            login_user(user_record[0], user_email, is_instituate=False)
+            return redirect(url_for('user_home_page'))
 
-    
-    return render_template('login_page.html',error={'mode':'signin','msg':''})
+        real_password = database.verifyUser(user_email)
+        if not real_password or not check_password_hash(real_password, user_password):
+            return render_login('Invalid email or password.', 'signin')
+
+        user_record = database.getUserData(user_email)
+        if not user_record:
+            return render_login('Unable to find the requested account.', 'signin')
+
+        is_instituate = database.isInstituate(user_record[0])
+        login_user(user_record[0], user_email, is_instituate=is_instituate)
+
+        if is_instituate:
+            user_name = current_user_name()
+            if not start_institute_otp_flow(user_name, user_email):
+                session.clear()
+                return render_login('Unable to send OTP. Check email configuration and try again.', 'signin')
+            return redirect(url_for('otp_page'))
+
+        return redirect(url_for('user_home_page'))
+
+    return render_login()
 
 
-# for otp verification-------------
 @app.route('/otp', methods=['GET', 'POST'])
+@require_auth(institute=True)
 def otp_page():
+    if 'otp' not in session or 'otp_expires_at' not in session:
+        return redirect(url_for('login_page'))
+
     if request.method == 'POST':
-        user_otp = request.form.get('otp')
+        user_otp = (request.form.get('otp') or '').strip()
+        expires_at = session.get('otp_expires_at', 0)
 
-        if int(user_otp) == session.get('otp'):
-            # remove otp after success
-            session.pop('otp', None)  
+        if datetime.now(timezone.utc).timestamp() > expires_at:
+            session.clear()
+            return render_template('otp.html', error='OTP expired. Please sign in again.')
+
+        try:
+            submitted_otp = parse_int(user_otp, 'OTP', minimum=100000)
+        except ValueError as exc:
+            return render_template('otp.html', error=str(exc))
+
+        if submitted_otp == session.get('otp'):
+            clear_otp_state()
             return redirect(url_for('instituate_page'))
-        else:
-            return "<h1>Invalid OTP</h1>"
 
-    return render_template('otp.html')
+        return render_template('otp.html', error='Invalid OTP.')
+
+    return render_template('otp.html', error='')
+
 
 @app.route('/getLoginData')
+@require_auth(api=True)
 def send_login_data():
-    user_name = database.getUserData2(session['user_id'])
+    return jsonify(
+        {
+            'isInstituate': session.get('isInstituate', False),
+            'user_name': current_user_name(),
+        }
+    )
 
-    return jsonify({
-        "isInstituate": session.get('isInstituate', False),
-        "user_name": user_name[0] if user_name else None
-    })
 
-# for user home page0--------------------------
 @app.route('/home')
+@require_auth()
 def user_home_page():
-    if 'user_id' not in session:
-        return ('<h1>No user Founded!</h1>')
-    
     return render_template('home_page.html')
 
-# for instituate home page-----------------------
-@app.route('/Instituate')
-def instituate_page():
-    if 'user_id' not in session:
-        return ('<h1>No user Founded!</h1>')
-    user_id = session['user_id']
 
-    instituate_data = {}
+@app.route('/Instituate')
+@require_auth(institute=True)
+def instituate_page():
+    user_id = session['user_id']
     instituate_name = database.getUserData2(user_id)
     courses_data = database.instituateCourse(user_id)
-    # print(courses_data)
-    total_course = len(courses_data[0])
-    enrolled_course = len(courses_data[1])
 
-    instituate_data['instituate_name'] = instituate_name[0]
-    instituate_data['total_course'] = total_course
-    instituate_data['enrolled_course'] = enrolled_course
-    return render_template('instituate_page.html',instituate_data = instituate_data)
+    instituate_data = {
+        'instituate_name': instituate_name[0] if instituate_name else 'Institute',
+        'total_course': len(courses_data[0]),
+        'enrolled_course': len(courses_data[1]),
+    }
+    return render_template('instituate_page.html', instituate_data=instituate_data)
 
-# to send result data for instituate page purpose---------
+
 @app.route('/getResultForInstituate')
-def InstituateResultData():
+@require_auth(api=True, institute=True)
+def instituate_result_data():
+    return jsonify(database.getResultForInstituate(session['user_id']))
 
-    data = database.getResultForInstituate(session['user_id'])
-    return jsonify(data)
 
-# to get data from js and store it to server--------------------------
-# to create new course data---------------------------
-
-@app.route('/publishCourse', methods=['GET','POST'])
+@app.route('/publishCourse', methods=['GET', 'POST'])
+@require_auth(institute=True)
 def publish_course():
-    
     if request.method == 'POST':
-        course_data = request.get_json()
-        course_id = database.addCourses(course_data['module_title'],course_data['module_price'],session['user_id'])
-        # print(course_data)
-        chapters = course_data['module_chapters']
-        for i in chapters:
-            database.addChapters(i['title'],i['description'],i['yt_url'],i['notes_url'],course_id)
+        course_data = get_json_body()
+        try:
+            module_title = (course_data.get('module_title') or '').strip()
+            module_price = parse_int(course_data.get('module_price'), 'module price', minimum=0)
+        except ValueError as exc:
+            return json_error(str(exc), 400)
 
-        questions = course_data['module_question']
-        for i in questions:
-            database.addQuestions(i['question'],i['option1'],i['option2'],i['option3'],i['option4'],i['answer'],course_id)
-    
-        return jsonify({'message':'course uploded'})
-    
+        if not module_title:
+            return json_error('Module title is required.', 400)
+
+        course_id = database.addCourses(module_title, module_price, session['user_id'])
+
+        for chapter in course_data.get('module_chapters', []):
+            database.addChapters(
+                chapter.get('title', '').strip(),
+                chapter.get('description', '').strip(),
+                chapter.get('yt_url', '').strip(),
+                chapter.get('notes_url', '').strip(),
+                course_id,
+            )
+
+        for question in course_data.get('module_question', []):
+            database.addQuestions(
+                question.get('question', '').strip(),
+                question.get('option1', '').strip(),
+                question.get('option2', '').strip(),
+                question.get('option3', '').strip(),
+                question.get('option4', '').strip(),
+                question.get('answer', '').strip(),
+                course_id,
+            )
+
+        return jsonify({'message': 'Course uploaded successfully.'})
+
     return render_template('create_module.html')
 
 
-# to makes api to fetch data from website----------------------------------
 @app.route('/user/data')
-def toSendUserData():
-    if 'user_id' not in session:
-        return jsonify({'error':'no  user found'}), 401
-    udata = database.getUserData2(session['user_id'])
-    user_data = {
-        'name':udata[0]
-    }
-
-    return jsonify(user_data)
+@require_auth(api=True)
+def to_send_user_data():
+    return jsonify({'name': current_user_name()})
 
 
-# to send data of courses in which user is enrolled-----------------
 @app.route('/user_courses/data')
-def toSendUserEnrolledCourse():
-    recive_data = database.getEnrolledCourses(session['user_id'])
-    course_data = []
-
-    compelted_count = 0
-    for i in recive_data:
-        progress = database.getCourseProgress(session['user_id'],i['course_id'])
-        quiz_attemp = database.getResultData2(session['user_id'])
-        if progress==100 and len(quiz_attemp)>0:
-            compelted_count += 1
-        
-        
-        
-        if len(quiz_attemp)<=0:
-            if progress>0:
-                progress -= 1
-
-        course_data.append({
-            'course_id':i['course_id'],
-            'course_title':i['course_title'],
-            'course_progress': progress
-        })
-    course_data.append({'completed':compelted_count})
-
-    # to give certificate count of that users--------------
-    certificate_count = getAllCertificates()
-    course_data.append({'certificate_count':len(certificate_count.get_json())})
-
+@require_auth(api=True)
+def to_send_user_enrolled_course():
+    course_data, completed_count, certificate_count = build_user_course_summary(session['user_id'])
+    course_data.append({'completed': completed_count})
+    course_data.append({'certificate_count': certificate_count})
     return jsonify(course_data)
 
 
-# to send data of all the avaiable courses------------------
 @app.route('/courses/data')
-def toSendAllCourses():
-    recive_data = database.getAllCourseData(session['user_id'])
+@require_auth(api=True)
+def to_send_all_courses():
+    received_data = database.getAllCourseData(session['user_id'])
     course_data = []
-    for i in recive_data:
-        course_data.append({
-            'course_id':i['course_id'],
-            'course_title':i['course_title'],
-            'course_price':i['course_price'],
-            'course_owner':database.getUserData2(i['user_id'])
-        })
-    
+    for course in received_data:
+        owner = database.getUserData2(course['user_id'])
+        course_data.append(
+            {
+                'course_id': course['course_id'],
+                'course_title': course['course_title'],
+                'course_price': course['course_price'],
+                'course_owner': owner[0] if owner else None,
+            }
+        )
     return jsonify(course_data)
-    
 
 
-# to add course when user Enroll it------------------------
-@app.route('/enrollCourse',methods=['POST'])
-def enrollCourses():
-    if request.method == 'POST':
-        data = request.get_json()
-        course_id = data['courseId']
-        course_details = database.getParticularCourseDetail(course_id)[0]
-        course_price = course_details['course_price']
-        user_balance = database.getBalance(session['user_id'])
+@app.route('/enrollCourse', methods=['POST'])
+@require_auth(api=True)
+def enroll_courses():
+    data = get_json_body()
+    try:
+        course_id = parse_int(data.get('courseId'), 'courseId', minimum=1)
+    except ValueError as exc:
+        return json_error(str(exc), 400)
 
-        # to verify user and course price----------------
-        if course_price>user_balance[0]:
-            return jsonify({'message':'Not Enough Points!!!'})
-        else:
-            # to reduce points from buyer balance------------
-            database.updateBalance(session['user_id'],course_price)
-            database.addCourseToUser(session['user_id'],int(course_id))
+    course_details = database.getParticularCourseDetail(course_id)
+    if not course_details:
+        return json_error('Course not found.', 404)
 
-            # and to add points to seller balance------------
-            owner_id = course_details['user_id']
-            database.updateBalance(owner_id,course_price,reduce=False)
-            return jsonify({'message':'Course Enrolled Successfully'})
-    
-    return jsonify({'message':'Fails To Enroll Course!!!'})
+    course_detail = course_details[0]
+    course_price = course_detail['course_price']
+    user_balance = database.getBalance(session['user_id'])[0]
 
+    if course_price > user_balance:
+        return jsonify({'message': 'Not enough points.'}), 400
 
-# to visite module page----------------------------
-@app.route('/myCourse/<int:course_id>',methods=['GET'])
-def openModulePage(course_id):
-    return render_template('module_page.html',course_id=course_id)
+    database.updateBalance(session['user_id'], course_price)
+    database.addCourseToUser(session['user_id'], course_id)
+    database.updateBalance(course_detail['user_id'], course_price, reduce=False)
+    return jsonify({'message': 'Course enrolled successfully.'})
 
 
-# to send chapters and it data to the module page------------------------
+@app.route('/myCourse/<int:course_id>', methods=['GET'])
+@require_auth()
+def open_module_page(course_id):
+    return render_template('module_page.html', course_id=course_id)
+
+
 @app.route('/courseData/<int:course_id>')
-def sendChaptersData(course_id):
+@require_auth(api=True)
+def send_chapters_data(course_id):
     data = database.getChaptersData(course_id)
-    if data:
-        data.append(database.getCourseName(course_id))
-        return jsonify(data)
-    else:
-        return jsonify({'data':'hello'})
+    if not data:
+        return jsonify([])
 
-@app.route('/chapterStatus',methods=["POST"])
-def sendChapterStatus():
-    if request.method == 'POST':
-        data = request.get_json()
-        data = database.getCompleteChapterData(session['user_id'],data['courseId'])
-        return jsonify(data)
-    
-# to mark chapter as completed--------------------
-@app.route('/chapterComplete',methods=["POST"])
-def markAsComplete():
-    if request.method == "POST":
-        data = request.get_json()
-        database.makeChapterComplete(session['user_id'],data['courseId'],data['chapterId'])
-        return jsonify({'message':'Chapter Completed'})
-    
-
-# to send quiz data ---------------------------------
-@app.route('/moduleQuiz',methods=['POST'])
-def sendQuizData():
-    if request.method == 'POST':
-        data = request.get_json()
-
-        quiz = database.getQuestionsData(data['courseId'])
-        isAttempt = database.getResultData(session['user_id'],data['courseId'])
-        if isAttempt:
-            quiz.append({'isAttempt':True})
-        else:
-            quiz.append({'isAttempt':False})
-
-        return jsonify(quiz)
-    
-    return jsonify({'message':'some thing wents wrong!'})
+    data.append(database.getCourseName(course_id))
+    return jsonify(data)
 
 
-# to save quiz result data--------------------------------
-@app.route('/quizFinished',methods=['POST'])
-def saveQuizData():
-    if request.method == 'POST':
-        data = request.get_json()
-        database.addResultData(session['user_id'],data['courseId'],data['score'])
-        user_name = database.getUserData2(session['user_id'])
-        user_email = session['user_email']
-        course_name = database.getParticularCourseDetail(data['courseId'])[0]['course_title']
-        SendEmail.result_email(user_email,user_name,course_name,data['score'])
-        return jsonify({'message':'sucessfull'})
-    
+@app.route('/chapterStatus', methods=['POST'])
+@require_auth(api=True)
+def send_chapter_status():
+    data = get_json_body()
+    try:
+        course_id = parse_int(data.get('courseId'), 'courseId', minimum=1)
+    except ValueError as exc:
+        return json_error(str(exc), 400)
 
-# to get result data ------------------
-@app.route('/showResult',methods=['POST'])
-def getResultData():
-    if request.method == 'POST':
-        course_id = request.get_json()['courseId']
-        data = database.getResultData(session['user_id'],course_id)
-
-        return jsonify(data)
-    return jsonify({'message':'No Data Found!!!'})
+    return jsonify(database.getCompleteChapterData(session['user_id'], course_id))
 
 
-# to open certificate page for that user by the help of course_id----------
+@app.route('/chapterComplete', methods=['POST'])
+@require_auth(api=True)
+def mark_as_complete():
+    data = get_json_body()
+    try:
+        course_id = parse_int(data.get('courseId'), 'courseId', minimum=1)
+        chapter_id = parse_int(data.get('chapterId'), 'chapterId', minimum=1)
+    except ValueError as exc:
+        return json_error(str(exc), 400)
+
+    database.makeChapterComplete(session['user_id'], course_id, chapter_id)
+    return jsonify({'message': 'Chapter completed.'})
+
+
+@app.route('/moduleQuiz', methods=['POST'])
+@require_auth(api=True)
+def send_quiz_data():
+    data = get_json_body()
+    try:
+        course_id = parse_int(data.get('courseId'), 'courseId', minimum=1)
+    except ValueError as exc:
+        return json_error(str(exc), 400)
+
+    quiz = database.getQuestionsData(course_id)
+    quiz.append({'isAttempt': bool(database.getResultData(session['user_id'], course_id))})
+    return jsonify(quiz)
+
+
+@app.route('/quizFinished', methods=['POST'])
+@require_auth(api=True)
+def save_quiz_data():
+    data = get_json_body()
+    try:
+        course_id = parse_int(data.get('courseId'), 'courseId', minimum=1)
+        score = parse_int(data.get('score'), 'score', minimum=0)
+    except ValueError as exc:
+        return json_error(str(exc), 400)
+
+    course_details = database.getParticularCourseDetail(course_id)
+    if not course_details:
+        return json_error('Course not found.', 404)
+
+    database.addResultData(session['user_id'], course_id, score)
+    course_name = course_details[0]['course_title']
+    SendEmail.result_email(session['user_email'], current_user_name(), course_name, score)
+    return jsonify({'message': 'Result saved successfully.'})
+
+
+@app.route('/showResult', methods=['POST'])
+@require_auth(api=True)
+def get_result_data():
+    data = get_json_body()
+    try:
+        course_id = parse_int(data.get('courseId'), 'courseId', minimum=1)
+    except ValueError as exc:
+        return json_error(str(exc), 400)
+
+    result = database.getResultData(session['user_id'], course_id)
+    if not result:
+        return json_error('Result not found.', 404)
+    return jsonify(result)
+
+
 @app.route('/certificate/<int:course_id>')
-def openCertificatePage(course_id):
-    user_name = database.getUserData2(session['user_id'])[0]
-    user_course = database.getCourseName(course_id)
-    user_score = database.getResultData(session['user_id'],course_id)['score']
-    date = database.getResultData(session['user_id'],course_id)['completion_date']
-    
-    # to get owner name of that course-------------------------
-    owner_id = database.getParticularCourseDetail(course_id)[0]['user_id']
-    owner_name = database.getUserData2(owner_id)[0]
+@require_auth()
+def open_certificate_page(course_id):
+    result = database.getResultData(session['user_id'], course_id)
+    if not result:
+        return redirect(url_for('open_certificatels'))
 
-    return render_template('certificate.html',data = [user_name,user_course,user_score,owner_name,date])
+    course_details = database.getParticularCourseDetail(course_id)
+    if not course_details:
+        return redirect(url_for('open_certificatels'))
+
+    owner_id = course_details[0]['user_id']
+    owner_name = database.getUserData2(owner_id)
+    return render_template(
+        'certificate.html',
+        data=[
+            current_user_name(),
+            database.getCourseName(course_id),
+            result['score'],
+            owner_name[0] if owner_name else '',
+            result['completion_date'],
+        ],
+    )
 
 
-# to open certificate list page--------------------------
 @app.route('/myCertificates')
-def openCertificatels():
+@require_auth()
+def open_certificatels():
     return render_template('certificate_list.html')
 
 
-
-# to show the list of all the certicate of that user-------------------
 @app.route('/getAllCertificate')
-def getAllCertificates():
+@require_auth(api=True)
+def get_all_certificates():
     result = database.getResultData2(session['user_id'])
     send_data = []
-    for i in result:
-        if i['score']>=50:
-            send_data.append({'course_title':database.getCourseName(i['course_id']),'course_id':i['course_id']})
+    for item in result:
+        if item['score'] >= 50:
+            send_data.append(
+                {
+                    'course_title': database.getCourseName(item['course_id']),
+                    'course_id': item['course_id'],
+                }
+            )
     return jsonify(send_data)
 
 
-# for user profile---------------------------------
 @app.route('/userprofile')
+@require_auth()
 def show_profile():
     user_id = session['user_id']
     user_name = database.getUserData2(user_id)
     balance = database.getBalance(user_id)
-    
-    course_details = toSendUserEnrolledCourse().get_json()
-    course_completed = course_details[len(course_details)-2]['completed']
-    active_course = len(toSendUserEnrolledCourse().get_json()[0:-2])
-    # print(toSendUserEnrolledCourse().get_json())
-    return render_template('profile.html',data = [user_name[0],balance[0],course_completed,active_course])
+    course_details, course_completed, _ = build_user_course_summary(user_id)
+    return render_template(
+        'profile.html',
+        data=[user_name[0] if user_name else '', balance[0], course_completed, len(course_details)],
+    )
 
-# when user log out---------------------------------
+
 @app.route('/logout')
 def logout():
-    # removes all session data----
     session.clear()
-    return render_template('login_page.html',error={'mode':'signin','msg':''})
-
-# to purhcase point-------------------------------------
-@app.route('/buyPackage',methods=['POST'])
-def buyPoints():
-    if request.method == 'POST':
-        points = request.get_json()['points']
-        user_id = session['user_id']
-        # check that user had any balance or not---------------
-
-        user_balance = database.getBalance(user_id)
-        if user_balance[0]>0: #if user already had balance
-            database.updateBalance(user_id,points,reduce=False)
-
-        else: #there is no data of user balance
-            database.addBalance(user_id,points)
-        return jsonify({'message':'Successfully Buy'})
-    return jsonify({'message':'Fails To Buy'})
+    return render_login('You have been logged out.', 'signin')
 
 
-# to launch instituate_user_page--------------
+@app.route('/buyPackage', methods=['POST'])
+@require_auth(api=True)
+def buy_points():
+    data = get_json_body()
+    try:
+        points = parse_int(data.get('points'), 'points', minimum=1)
+    except ValueError as exc:
+        return json_error(str(exc), 400)
+
+    user_id = session['user_id']
+    user_balance = database.getBalance(user_id)[0]
+    if user_balance > 0:
+        database.updateBalance(user_id, points, reduce=False)
+    else:
+        database.addBalance(user_id, points)
+    return jsonify({'message': 'Successfully bought points.'})
+
+
 @app.route('/instituate_user')
-def openInstituateUser():
+@require_auth(institute=True)
+def open_instituate_user():
     return render_template('instituate_user.html')
 
-# to send particular instituate_page courses data--------
+
 @app.route('/instituatesCourses')
-def getInstituatesCourses():
-    data = database.instituateCourse(session['user_id'])[0]
-    return jsonify(data)
+@require_auth(api=True, institute=True)
+def get_instituates_courses():
+    return jsonify(database.instituateCourse(session['user_id'])[0])
+
 
 @app.route('/instituateStudentData')
-def getInstituateStudent():
-    data = database.getInstituateStudent(session['user_id'])
-    return jsonify(data)
+@require_auth(api=True, institute=True)
+def get_instituate_student():
+    return jsonify(database.getInstituateStudent(session['user_id']))
+
 
 @app.route('/GeneralData')
-def getGeneralData():
-    data = database.getGeneralUserData()
-    return jsonify(data)
+@require_auth(api=True, institute=True)
+def get_general_data():
+    return jsonify(database.getGeneralUserData())
+
 
 @app.route('/instituateProfile')
-def showInstituateprofile():
-    return render_template('instituateProfile.html')
+@require_auth(institute=True)
+def show_instituate_profile():
+    return render_template('instituateprofile.html')
+
 
 @app.route('/instituateReveneu')
-def getInstituateRevenu():
-    data = database.getInstituateStudent(session['user_id'])
-    return jsonify(data)
+@require_auth(api=True, institute=True)
+def get_instituate_revenue():
+    return jsonify(database.getInstituateStudent(session['user_id']))
 
-#===================================================
+
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login_page():
     if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
+        email = (request.form.get('email') or '').strip().lower()
+        password = (request.form.get('password') or '').strip()
 
-        if email == 'admin@gmail.com' and password == 'Admin_1':
-            session.clear()
-            session['user_id'] = 'admin'
-            session['is_admin'] = True
+        if email == ADMIN_EMAIL.lower() and password == ADMIN_PASSWORD:
+            login_user('admin', email, is_admin=True)
             return redirect(url_for('admin_panel'))
-        else:
-            return render_template('admin_login.html', error='Invalid Credentials')
+
+        return render_template('admin_login.html', error='Invalid credentials.')
+
     return render_template('admin_login.html')
 
-# for admin panel page---------------------
+
 @app.route('/adminpanel')
+@require_auth(admin=True)
 def admin_panel():
-    if session.get('is_admin'):
-        admin_data = {
-            'admin_name': 'Admin',
-            'total_users': database.getTotalUsers() or 0,
-            'total_institutes': database.getTotalInstitutes() or 0,
-            'total_courses': database.getTotalCourses() or 0
-        }
-        return render_template('admin_panel.html', admin_data=admin_data)
-    return redirect(url_for('admin_login_page'))
+    admin_data = {
+        'admin_name': 'Admin',
+        'total_users': database.getTotalUsers() or 0,
+        'total_institutes': database.getTotalInstitutes() or 0,
+        'total_courses': database.getTotalCourses() or 0,
+    }
+    return render_template('admin_panel.html', admin_data=admin_data)
 
-# to send admin dashboard data---------------------
+
 @app.route('/admin/data')
+@require_auth(api=True, admin=True)
 def admin_dashboard_data():
-    if not session.get('is_admin'):
-        return jsonify({'error': 'Unauthorized'}), 403
+    return jsonify({'top_institutes': database.getTopInstitutes()})
 
-    # Fetch data for tables
-    top_institutes = database.getTopInstitutes()
 
-    return jsonify({"top_institutes": top_institutes})
-
-# to get all users for admin---------------------
 @app.route('/admin/users')
+@require_auth(api=True, admin=True)
 def admin_users():
-    if session.get('is_admin'):
-        return jsonify(database.getAllUsers())
-    return jsonify({'error': 'Unauthorized'}), 403
+    return jsonify(database.getAllUsers())
 
-# to get all courses for admin---------------------
+
 @app.route('/admin/courses')
+@require_auth(api=True, admin=True)
 def admin_courses():
-    if session.get('is_admin'):
-        return jsonify(database.getAllCoursesAdmin())
-    return jsonify({'error': 'Unauthorized'}), 403
+    return jsonify(database.getAllCoursesAdmin())
 
-# to delete a user---------------------
+
 @app.route('/admin/delete_user', methods=['POST'])
+@require_auth(api=True, admin=True)
 def delete_user():
-    if session.get('is_admin'):
-        user_id = request.get_json()['user_id']
-        success = database.deleteUser(user_id)
-        if success:
-            return jsonify({'message':'Deleted'})
-        else:
-            return jsonify({'error':'Failed'}),500
-    return jsonify({'error':'Unauthorized'}),403
+    data = get_json_body()
+    try:
+        user_id = parse_int(data.get('user_id'), 'user_id', minimum=1)
+    except ValueError as exc:
+        return json_error(str(exc), 400)
+
+    if database.deleteUser(user_id):
+        return jsonify({'message': 'Deleted'})
+    return json_error('Failed to delete user.', 500)
 
 
-# to get courses of a specific institute for admin---------------------
 @app.route('/admin/institute_courses/<int:user_id>')
+@require_auth(api=True, admin=True)
 def admin_institute_courses(user_id):
-    if session.get('is_admin'):
-        return jsonify(database.instituateCourse(user_id)[0])
-    return jsonify({'error': 'Unauthorized'}), 403
+    return jsonify(database.instituateCourse(user_id)[0])
 
-# to download reports (daily/monthly)---------------------
+
 @app.route('/admin/download_report/<report_type>')
+@require_auth(admin=True)
 def download_report(report_type):
-    if not session.get('is_admin'):
-        return redirect(url_for('admin_login_page'))
-    
     si = StringIO()
-    cw = csv.writer(si)
-    filename = "report.csv"
-    
+    csv_writer = csv.writer(si)
+    filename = 'report.csv'
+
     if report_type == 'top_institutes':
         data = database.getTopInstitutes()
-        cw.writerow(['Institute Name', 'Courses', 'Total Enrollments'])
+        csv_writer.writerow(['Institute Name', 'Courses', 'Total Enrollments'])
         for row in data:
-            cw.writerow([row['name'], row['course_count'], row['enrollments']])
+            csv_writer.writerow([row['name'], row['course_count'], row['enrollments']])
         filename = 'top_institutes_report.csv'
     else:
-        return "Invalid report type", 400
-        
+        return 'Invalid report type', 400
+
     output = make_response(si.getvalue())
-    output.headers["Content-Disposition"] = f"attachment; filename={filename}"
-    output.headers["Content-type"] = "text/csv"
+    output.headers['Content-Disposition'] = f'attachment; filename={filename}'
+    output.headers['Content-type'] = 'text/csv'
     return output
 
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=os.getenv('FLASK_DEBUG', 'false').lower() == 'true')

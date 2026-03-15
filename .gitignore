@@ -1,6 +1,61 @@
+# Python cache and bytecode
 __pycache__/
 *.py[cod]
-.env
+*$py.class
+
+# Distribution and build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+*.whl
+
+# Virtual environments
+.venv/
 venv/
+env/
+ENV/
+
+# Test and coverage outputs
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# Type checker / linter caches
+.mypy_cache/
+.pyre/
+.ruff_cache/
+
+# Flask runtime
+instance/
+.webassets-cache/
+*.log
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Notebook and editor artifacts
+.ipynb_checkpoints/
 .vscode/
 .idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Database dumps and local backups
+*.sql.bak
+*.dump
+*.backup
+
+# Local sqlite files (if used for testing)
+*.db
+*.sqlite
+*.sqlite3

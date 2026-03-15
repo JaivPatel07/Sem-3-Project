@@ -181,9 +181,8 @@ function startLearning(btn) {
 
 // to open the all certificate list page-----------------------------------
 function openCertificate_ls(btn) {
-    const course_id = btn.getAttribute('course_id')
-    // to opne the page of that id--------
-    window.location.href = `/myCertificates/${course_id}`
+    // certificate list is a single page route
+    window.location.href = '/myCertificates'
 }
 
 
