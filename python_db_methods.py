@@ -1,15 +1,19 @@
 import psycopg2
 import psycopg2.extras
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class MyDataMethods:
 
     def dataBase(self):
         return psycopg2.connect(
-            host='localhost',
-            user='postgres',
-            password='your data base password',
-            dbname='eduSphere',
-            port='5432'
+            host=os.getenv('DB_HOST'),
+            user=os.getenv('DB_USER'),
+            password=os.getenv('DB_PASSWORD'),
+            dbname=os.getenv('DB_NAME'),
+            port=os.getenv('DB_PORT')
         )
 
     def addUser(self, user_name, user_email, user_password):
@@ -595,5 +599,3 @@ class MyDataMethods:
         finally:
             cursor.close()
             db.close()
-
-
