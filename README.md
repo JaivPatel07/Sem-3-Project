@@ -1,86 +1,154 @@
 # EduSphere LMS
 
-[![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python)](https://www.python.org/)
-[![Flask](https://img.shields.io/badge/Flask-2.x-lightgrey?logo=flask)](https://flask.palletsprojects.com/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14+-336791?logo=postgresql)](https://www.postgresql.org/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+EduSphere is a full-stack Learning Management System (LMS) built to manage online courses, users, and learning progress. It allows students to enroll in courses, track their progress, and receive certificates, while instructors and admins can manage content and users.
 
-**EduSphere** is a premium, high-performance Learning Management System (LMS) designed to bridge the gap between students, educators, and administrators. Featuring a bespoke "Premium Light" design system, it delivers a modern, accessible, and highly-intuitive user experience.
+---
+## Screenshots
+
+### Landing Pages
+
+| Home Page                       | Features Section                | FAQ Section                     |
+| ------------------------------- | ------------------------------- | ------------------------------- |
+| ![](screenshots/indexpage1.png) | ![](screenshots/indexpage2.png) | ![](screenshots/indexpage4.png) |
+
+| Additional Section              |
+| ------------------------------- |
+| ![](screenshots/indexpage3.png) |
 
 ---
 
-## Table of Contents
-- [Key Features](#key-features)
-- [System Architecture](#system-architecture)
-- [Tech Stack](#tech-stack)
-- [Getting Started](#getting-started)
-- [Project Structure](#project-structure)
-- [Security & Performance](#security--performance)
+### Authentication
+
+| Login Page                     | Admin Login                     |
+| ------------------------------ | ------------------------------- |
+| ![](screenshots/loginpage.png) | ![](screenshots/adminlogin.png) |
 
 ---
 
-## Key Features
+### Student Experience
 
-### Student Hub
-- **Interactive Learning**: Industry-standard course player with sticky sidebars and chapter navigation.
-- **Progress Tracking**: Real-time progress bars and "Continue where you left off" functionality.
-- **Assessments**: Dynamic quiz system with instant grading and performance reports.
-- **Certification**: Automated generation of PDF-styled completion certificates.
+| Dashboard                  | Course View                 | Profile                      |
+| -------------------------- | --------------------------- | ---------------------------- |
+| ![](screenshots/home1.png) | ![](screenshots/module.png) | ![](screenshots/profile.png) |
 
-### Institute Workspace
-- **Course Studio**: Drag-and-drop style creator for building multi-chapter modules.
-- **Student Analytics**: Detailed tables showing enrollments, completion rates, and revenue.
-- **Secure Onboarding**: Dedicated OTP-verified authentication flow for institutional safety.
+| Subscription / Plans       |
+| -------------------------- |
+| ![](screenshots/home2.png) |
 
-### Admin Command Center
-- **Unified Oversight**: Global metrics for users, courses, and active institutes.
-- **Data Portability**: One-click CSV reporting for platform growth and audits.
-- **User Management**: Granular control over accounts and course catalog sanitation.
+---
+
+### Admin Panel
+
+| Dashboard                        | Management Panel                 | User Management           |
+| -------------------------------- | -------------------------------- | ------------------------- |
+| ![](screenshots/adminpanel1.png) | ![](screenshots/adminpanel2.png) | ![](screenshots/Uni2.png) |
+
+---
+
+### Institute / Analytics
+
+| Institute Dashboard              |
+| -------------------------------- |
+| ![](screenshots/university1.png) |
+
+---
+
+### Certificate
+
+| Generated Certificate            |
+| -------------------------------- |
+| ![](screenshots/certificate.png) |
+
+
+## Features
+
+### Student
+
+* Enroll in courses and access video content (YouTube integration)
+* Track course progress and continue learning
+* Attempt quizzes and get instant results
+* Generate course completion certificates
+
+### Instructor / Institute
+
+* Create and manage courses with multiple modules
+* View student enrollments and performance
+* Secure login with OTP-based authentication
+
+### Admin
+
+* Manage users, courses, and institutes
+* Monitor overall platform activity
+* Export data (CSV)
 
 ---
 
 ## Tech Stack
 
-| Component | Technology |
-| :--- | :--- |
-| **Backend** | Python / Flask Framework |
-| **Database** | PostgreSQL (Relational) |
-| **Styling** | Vanilla CSS3 (Custom Design System) |
-| **Frontend** | ES6+ JavaScript, Bootstrap 5.3 |
-| **Security** | Werkzeug Security (HASH), Regex Validation |
+* Backend: Python, Flask
+* Database: PostgreSQL
+* Frontend: HTML, CSS, JavaScript, Bootstrap
+* Authentication: OTP-based email verification
+* Security: Password hashing (Werkzeug), input validation
 
 ---
 
-## Getting Started
+## Setup Instructions
 
 ### Prerequisites
-- Python 3.10 or higher
-- PostgreSQL Server 14+
+
+* Python 3.10+
+* PostgreSQL
 
 ### Installation
 
-1. **Clone the Repository**
-2. **Environment Configuration**
-   Copy `.env.example` to `.env` and configure your credentials.
-3. **Install Dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-4. **Initialize Database**
-   ```bash
-   python init_db.py  # Create schema
-   python seed.py     # Load demonstration data
-   ```
-5. **Launch Application**
-   ```bash
-   python app.py
-   ```
+```bash
+# Clone the repository
+git clone https://github.com/JaivPatel07/Sem-3-Project.git
+cd Sem-3-Project
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Setup environment variables
+cp .env.example .env
+
+# Initialize database
+python init_db.py
+python seed.py
+
+# Run the application
+python app.py
+```
 
 ---
 
-## Security & Performance
+## Project Structure
 
-- **Thematic Integrity**: Optimized for 100% Light Theme consistency using a centralized CSS variable system.
-- **Session Security**: Implements `HTTPOnly` and `SameSite` cookie policies with configurable secure flags.
-- **Email Integrity**: Integrated SMTP layer for reliable OTP delivery and student performance reports.
-- **Clean Architecture**: Orchestrated via a decoupled `python_db_methods` layer for robust data handling.
+```
+Sem-3-Project/
+│── static/
+│   ├── css/
+│   └── js/
+│
+│── templates/
+│
+│── app.py
+│── init_db.py
+│── seed.py
+│── schema.sql
+│── python_db_methods.py
+│── myEmail.py
+│── requirements.txt
+```
+
+---
+
+## Security
+
+* Passwords are securely hashed using Werkzeug
+* OTP-based email verification system
+* Session-based authentication
+* Input validation to prevent invalid data
+
+---
