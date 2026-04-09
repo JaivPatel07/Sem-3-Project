@@ -1,49 +1,86 @@
-# EduSphere
+# EduSphere LMS
 
-EduSphere is a Flask-based learning management system for students, institutes, and administrators. It supports user signup and login, institute course publishing, enrollments, quiz results, certificates, and an admin dashboard.
+[![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python)](https://www.python.org/)
+[![Flask](https://img.shields.io/badge/Flask-2.x-lightgrey?logo=flask)](https://flask.palletsprojects.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14+-336791?logo=postgresql)](https://www.postgresql.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-## Stack
+**EduSphere** is a premium, high-performance Learning Management System (LMS) designed to bridge the gap between students, educators, and administrators. Featuring a bespoke "Premium Light" design system, it delivers a modern, accessible, and highly-intuitive user experience.
 
-- Python + Flask
-- PostgreSQL via psycopg2
-- Jinja templates with static CSS and JavaScript assets
-- SMTP email for OTP and result notifications
+---
 
-## Environment Variables
+## Table of Contents
+- [Key Features](#key-features)
+- [System Architecture](#system-architecture)
+- [Tech Stack](#tech-stack)
+- [Getting Started](#getting-started)
+- [Project Structure](#project-structure)
+- [Security & Performance](#security--performance)
 
-Create a `.env` file in the project root with the values from `.env.example`.
+---
 
-- `FLASK_SECRET_KEY`: Flask session secret
-- `FLASK_DEBUG`: set to `true` for local debug mode
-- `SESSION_COOKIE_SECURE`: set to `true` in HTTPS deployments
-- `SESSION_LIFETIME_HOURS`: session lifetime in hours
-- `OTP_EXPIRY_MINUTES`: institute login OTP lifetime in minutes
-- `ADMIN_EMAIL`: admin login email
-- `ADMIN_PASSWORD`: admin login password
-- `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`: PostgreSQL connection settings
-- `SMTP_SENDER_EMAIL`, `SMTP_SENDER_PASSWORD`: SMTP credentials for OTP/result emails
-- `SMTP_HOST`, `SMTP_PORT`: SMTP server settings
-- `LOG_LEVEL`: optional application log level
+## Key Features
 
-## Setup
+### Student Hub
+- **Interactive Learning**: Industry-standard course player with sticky sidebars and chapter navigation.
+- **Progress Tracking**: Real-time progress bars and "Continue where you left off" functionality.
+- **Assessments**: Dynamic quiz system with instant grading and performance reports.
+- **Certification**: Automated generation of PDF-styled completion certificates.
 
-1. Create and activate a Python environment.
-2. Install dependencies:
+### Institute Workspace
+- **Course Studio**: Drag-and-drop style creator for building multi-chapter modules.
+- **Student Analytics**: Detailed tables showing enrollments, completion rates, and revenue.
+- **Secure Onboarding**: Dedicated OTP-verified authentication flow for institutional safety.
 
-```bash
-pip install -r requirements.txt
-```
+### Admin Command Center
+- **Unified Oversight**: Global metrics for users, courses, and active institutes.
+- **Data Portability**: One-click CSV reporting for platform growth and audits.
+- **User Management**: Granular control over accounts and course catalog sanitation.
 
-3. Create `.env` from `.env.example` and fill in your secrets.
-4. Make sure PostgreSQL is running and the expected tables already exist.
-5. Start the app:
+---
 
-```bash
-python app.py
-```
+## Tech Stack
 
-## Notes
+| Component | Technology |
+| :--- | :--- |
+| **Backend** | Python / Flask Framework |
+| **Database** | PostgreSQL (Relational) |
+| **Styling** | Vanilla CSS3 (Custom Design System) |
+| **Frontend** | ES6+ JavaScript, Bootstrap 5.3 |
+| **Security** | Werkzeug Security (HASH), Regex Validation |
 
-- Institute logins require SMTP credentials so the OTP email can be delivered.
-- Admin credentials are no longer hardcoded in source; they must come from environment variables.
-- Static asset references are Flask-relative, so the app is safer to deploy outside a Windows-only path layout.
+---
+
+## Getting Started
+
+### Prerequisites
+- Python 3.10 or higher
+- PostgreSQL Server 14+
+
+### Installation
+
+1. **Clone the Repository**
+2. **Environment Configuration**
+   Copy `.env.example` to `.env` and configure your credentials.
+3. **Install Dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. **Initialize Database**
+   ```bash
+   python init_db.py  # Create schema
+   python seed.py     # Load demonstration data
+   ```
+5. **Launch Application**
+   ```bash
+   python app.py
+   ```
+
+---
+
+## Security & Performance
+
+- **Thematic Integrity**: Optimized for 100% Light Theme consistency using a centralized CSS variable system.
+- **Session Security**: Implements `HTTPOnly` and `SameSite` cookie policies with configurable secure flags.
+- **Email Integrity**: Integrated SMTP layer for reliable OTP delivery and student performance reports.
+- **Clean Architecture**: Orchestrated via a decoupled `python_db_methods` layer for robust data handling.

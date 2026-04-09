@@ -4,6 +4,7 @@ import os
 from datetime import datetime, timedelta, timezone
 from functools import wraps
 from io import StringIO
+import re
 
 from dotenv import load_dotenv
 from flask import Flask, jsonify, make_response, redirect, render_template, request, session, url_for
@@ -198,6 +199,9 @@ def login_page():
         if is_signup:
             if not user_name:
                 return render_login('Name is required to create an account.', 'signup')
+
+            if not re.match(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\w\W]{8,}$', user_password):
+                return render_login('Password must be at least 8 characters long, contain an uppercase letter, a lowercase letter, and a number.', 'signup')
 
             if database.getUserData(user_email):
                 return render_login('User already exists.', 'signup')

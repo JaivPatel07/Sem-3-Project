@@ -1,117 +1,87 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>User Profile | EduSphere</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+{% extends "base.html" %}
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+{% block title %}User Profile | EduSphere{% endblock %}
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static',filename='css/home_page.css') }}">
+{% block extra_css %}
+<style>
+  .profile-hero {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.1));
+    padding-top: 80px;
+    padding-bottom: 40px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  
+  .profile-avatar {
+    width: 120px;
+    height: 120px;
+    background: var(--accent-gradient);
+    border: 4px solid var(--bg-surface);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: white;
+    margin: -60px auto 20px auto;
+    box-shadow: var(--shadow-soft);
+  }
+  
+  .stats-card-profile {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: var(--border-radius);
+    padding: 24px;
+    text-align: center;
+  }
+</style>
+{% endblock %}
 
-    <style>
-        body {
-            background-color: #f2f6ff;
-        }
+{% block content %}
+<div class="profile-hero">
+  <div class="container text-center animate-fade-up">
+    <h2 class="fw-bold mb-0">Student Profile</h2>
+    <p class="text-secondary">View your statistics and progress</p>
+  </div>
+</div>
 
-        .profile-card {
-            border: none;
-            border-radius: 1.2rem;
-            box-shadow: 0 10px 25px rgba(13,110,253,0.15);
-        }
-
-        .profile-header {
-            background: linear-gradient(135deg, #94a2b6, #adc1df);
-            color: white;
-            border-radius: 1.2rem 1.2rem 0 0;
-        }
-
-        .user-icon {
-            font-size: 4rem;
-            background: white;
-            color: #0d6efd;
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        .section-title {
-            color: #0d6efd;
-            font-weight: 600;
-        }
-
-        .info-value {
-            font-size: 1.3rem;
-            font-weight: 600;
-        }
-    </style>
-</head>
-<body>
-
-    {% include 'navbar.html' %}
-    <div class="container my-5">
-
-        <!-- to show user prfile-------------- -->
-        <div class="card profile-card mb-4">
-            <div class="profile-header p-4">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center gap-4">
-                        <div class="user-icon">
-                            <i class="bi bi-person-fill"></i>
-                        </div>
-                        <div>
-                            <h3 class="mb-0" id="username">{{ data[0] }}</h3>
-                            <small class="opacity-75">EduSphere User</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<div class="container mb-5" style="margin-top: -30px;">
+  <div class="row justify-content-center animate-fade-up" style="animation-delay: 0.1s;">
+    <div class="col-lg-8">
+      <div class="modern-card pt-0 pb-5">
+        <div class="profile-avatar overflow-hidden">
+          <span id="avatar-letter" style="text-transform: uppercase;">{{ data[0][0] if data[0] else 'U' }}</span>
         </div>
-
-        <!-- to show user earning--------- -->
-        <div class="card mb-4">
-            <div class="card-body p-4">
-                <h5 class="section-title mb-3">
-                    <i class="bi bi-cash-coin me-2"></i> Earnings Overview
-                </h5>
-
-                <div class="row text-center">
-                    <div class="col-md-6">
-                        <p class="text-muted mb-1">Total Balance</p>
-                        <p class="info-value text-primary">{{ data[1] }}</p>
-                    </div>
-                </div>
-            </div>
+        
+        <div class="text-center mb-5">
+          <h3 class="fw-bold mb-1" id="username" style="text-transform: capitalize;">{{ data[0] }}</h3>
+          <span class="badge bg-primary bg-opacity-25 text-primary rounded-pill px-3 py-2">EduSphere Student</span>
         </div>
-
-        <!-- to show user progress------------------------------------- -->
-        <div class="card profile-card">
-            <div class="card-body p-4">
-                <h5 class="section-title mb-3">
-                    <i class="bi bi-bar-chart-fill me-2"></i> Learning Progress
-                </h5>
-
-                <div class="row text-center">
-                    <div class="col-md-6">
-                        <p class="text-muted mb-1">Courses Completed</p>
-                        <p class="info-value text-primary">{{ data[2] }}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p class="text-muted mb-1">Active Courses</p>
-                        <p class="info-value text-primary">{{ data[3] }}</p>
-                    </div>
-                </div>
+        
+        <div class="row g-4 px-md-4">
+          <div class="col-md-6">
+            <div class="stats-card-profile">
+              <i class="bi bi-wallet2 text-success fs-1 mb-3"></i>
+              <h5 class="text-secondary mb-1">Total Balance</h5>
+              <h2 class="fw-bold text-gradient mb-0">{{ data[1] }} pts</h2>
             </div>
+          </div>
+          <div class="col-md-6">
+            <div class="stats-card-profile">
+              <i class="bi bi-mortarboard text-warning fs-1 mb-3"></i>
+              <h5 class="text-secondary mb-1">Learning Stats</h5>
+              <h4 class="fw-bold mb-1 ">{{ data[2] }} <small class="text-secondary fs-6 fw-normal">Completed</small></h4>
+              <h4 class="fw-bold mb-0 ">{{ data[3] }} <small class="text-secondary fs-6 fw-normal">Active</small></h4>
+            </div>
+          </div>
         </div>
-
-        <!-- log out button------------------------------------------------- -->
-        <button type="button" class="btn btn-outline-danger m-3" onclick="window.location.href='/logout'">Log out</button>
+        
+        <div class="text-center mt-5">
+          <a href="/logout" class="btn btn-outline-danger px-4 py-2 rounded-pill fw-semibold">
+            <i class="bi bi-box-arrow-right me-2"></i> Log Out
+          </a>
+        </div>
+      </div>
     </div>
-</body>
-</html>
+  </div>
+</div>
+{% endblock %}

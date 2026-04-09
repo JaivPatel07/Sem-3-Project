@@ -1,348 +1,279 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LMS Platform</title>
-    <link rel="stylesheet" href="{{ url_for('static',filename='css/index.css')}}">
+{% extends "base.html" %}
 
+{% block title %}EduSphere | Master New Skills{% endblock %}
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-</head>
+{% block content %}
+<style>
+  .hero-section {
+    min-height: calc(100vh - 76px);
+    display: flex;
+    align-items: center;
+    background: radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.15), transparent 40%),
+          radial-gradient(circle at 20% 80%, rgba(168, 85, 247, 0.1), transparent 40%);
+    padding: 80px 0;
+  }
+  
+  .hero-title {
+    font-size: 4rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 24px;
+    letter-spacing: -0.02em;
+  }
+  
+  .feature-icon-box {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: var(--accent-primary);
+  }
+  
+  .course-card-home {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: var(--border-radius);
+    padding: 30px;
+    transition: all 0.3s;
+    height: 100%;
+  }
+  .course-card-home:hover {
+    background: rgba(255, 255, 255, 0.04);
+    transform: translateY(-5px);
+    border-color: rgba(99, 102, 241, 0.3);
+    box-shadow: var(--shadow-glow);
+  }
+  
+  .reviewer-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--accent-gradient);
+    display: flex; /* correct syntax */
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+  }
+  
+  .accordion-button {
+    background: transparent !important;
+    color: var(--text-primary) !important;
+    box-shadow: none !important;
+    font-weight: 600;
+  }
+  .accordion-button::after {
+    filter: invert(1);
+  }
+  .accordion-item {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: var(--border-radius) !important;
+    margin-bottom: 15px;
+    overflow: hidden;
+  }
+  .accordion-body {
+    color: var(--text-secondary);
+  }
 
-<body>
+  @media (max-width: 768px) {
+    .hero-title {
+      font-size: 2.5rem;
+    }
+  }
+</style>
 
-    <div id="loader" class="d-flex justify-content-center align-items-center">
-        <div class="spinner-border text-primary" role="status" aria-label="Loading">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-    </div>
-
-    <header>
-        <nav id="navbar">
-            <div class="logo"><i class="bi bi-globe2"></i> EduSphere</div>
-            <button id="menu-btn"><i class="bi bi-list"></i></button>
-            <div class="menu-container">
-                <a href="#about-us" class="navitems">About Us</a>
-                <a href="#courses" class="navitems">Courses</a>
-                <a href="#contact" class="navitems">Contact</a>
-                <a href="/login" id="start">Get Started</a>
-            </div>
-        </nav>
-    </header>
-
-    <main>
-        <section class="main-heading">
+<!-- Hero Section -->
+<section class="hero-section text-center text-lg-start" id="hero">
+  <div class="container animate-fade-up">
+    <div class="row align-items-center">
+      <div class="col-lg-6 mb-5 mb-lg-0">
+        <span class="badge border border-secondary text-secondary rounded-pill px-3 py-2 mb-4">
+          <i class="bi bi-stars text-warning me-1"></i> Learn from top industry experts
+        </span>
         <h1 class="hero-title">
-            Master New Skill with<br>
-            Expert-Led Courses
+          Master New Skills with <br/>
+          <span class="text-gradient">Expert-Led Courses</span>
         </h1>
-        <p class="hero-subtitle">
-            Learn anytime, anywhere with industry-ready courses
+        <p class="text-secondary fs-5 mb-5" style="max-width: 500px; margin: 0 auto 0 0;">
+          Elevate your career with practical, real-world skills. Learn anytime, anywhere with industry-ready content tailored for your success.
         </p>
-        <div class="hero-buttons">
-            <a href="#courses" id="browse-courses-btn" class="hero-btn">Browse Courses</a>
-            <a href="/login" id="start-free-btn" class="hero-btn">Start Learning</a>
+        <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
+          <a href="#courses" class="btn-premium px-4 py-3">Explore Courses</a>
+          <a href="/login" class="btn-outline-premium px-4 py-3">Start Free Trial</a>
         </div>
-    </section>
-
-    <section class="main-about-us" id="about-us">
-        <h1>About Us</h1>
-        <p>
-            Welcome to EduSphere, a learning platform built for students who want to grow beyond textbooks. We help you learn practical, real-world skills that actually matter for internships, placements, and future careers. Our courses cover technology, business, creative fields, and personal development—taught in a simple, easy-to-understand way by experienced mentors. Whether you’re just starting out or upgrading your skills, EduSphere is here to support your learning journey every step of the way. Start learning today and build a better future with confidence. 
-        </p>
-    </section>
-
-    <section class="featured-courses" id="courses">
-        <h2>Explore Popular Courses</h2>
-        <div class="course-grid">
-            <div class="course-card">
-
-                <i class="bi bi-code-slash course-icon"></i>
-                <div class="badge-container">
-                    <span class="course-badge beginner">Beginner</span>
-                    <span class="course-badge popular">Popular</span>
-                </div>
-
-                <h3>Web Development</h3>
-                <p>Master HTML, CSS, and JavaScript from scratch.</p>
-                <a href="#" class="course-btn">View Course</a>
+      </div>
+      <div class="col-lg-6 position-relative d-none d-lg-block">
+        <!-- Decorative elements for hero -->
+        <div class="glass-panel p-4 position-absolute shadow-glow" style="top: 10%; right: 10%; z-index: 2; transform: rotate(5deg);">
+          <div class="d-flex align-items-center gap-3">
+            <div class="bg-success rounded-circle p-3 text-white"><i class="bi bi-check-lg fs-4"></i></div>
+            <div>
+              <h5 class="mb-0 fw-bold">10k+ Students</h5>
+              <small class="text-secondary">Enrolled globally</small>
             </div>
-            <div class="course-card">
-                <i class="bi bi-bar-chart-line course-icon"></i>
-                <div class="badge-container">
-                    <span class="course-badge beginner">Intermediate</span>
-                    <span class="course-badge popular">Popular</span>
-                </div>
-                <h3>Data Science</h3>
-                <p>Learn Python, SQL, and Machine Learning basics.</p>
-                <a href="#" class="course-btn">View Course</a>
-            </div>
-            <div class="course-card">
-                <i class="bi bi-megaphone course-icon"></i>
-                <div class="badge-container">
-                    <span class="course-badge beginner">Beginner</span>
-                    <span class="course-badge popular">Popular</span>
-                </div>
-                <h3>Digital Marketing</h3>
-                <p>Grow your business with SEO and Social Media.</p>
-                <a href="#" class="course-btn">View Course</a>
-            </div>
+          </div>
         </div>
-        <div class="explore-more-container">
-            <a href="#" class="explore-btn">Explore More Courses </a>
+        <div class="glass-panel p-4 position-absolute shadow-glow" style="bottom: 10%; left: 0; z-index: 2; transform: rotate(-3deg);">
+          <div class="d-flex align-items-center gap-3">
+            <div class="bg-warning rounded-circle p-3 text-dark"><i class="bi bi-star-fill fs-4"></i></div>
+            <div>
+              <h5 class="mb-0 fw-bold">4.9/5 Rating</h5>
+              <small class="text-secondary">From 2k+ reviews</small>
+            </div>
+          </div>
         </div>
-    </section>
-    
-    <section class="features-section">
-        <h2>Why Choose Us</h2>
-        <div class="features-grid">
-            <div class="feature-item">
-                <i class="bi bi-award"></i>
-                <h3>Expert Instructors</h3>
-                <p>Learn from industry experts who are passionate about teaching.</p>
-            </div>
-            <div class="feature-item">
-                <i class="bi bi-patch-check"></i>
-                <h3>Certificates</h3>
-                <p>Earn a certificate of completion for every course you finish.</p>
-            </div>
-            <div class="feature-item">
-                <i class="bi bi-camera-video"></i>
-                <h3>High Quality Video</h3>
-                <p>Enjoy high-definition video lessons with clear audio.</p>
-            </div>
+        <!-- Abstract visual placeholder -->
+        <div class="rounded-circle mx-auto" style="width: 400px; height: 400px; background: radial-gradient(circle, var(--bg-surface) 0%, transparent 100%); display:flex; align-items:center; justify-content:center; border: 1px dashed rgba(255,255,255,0.1);">
+          <i class="bi bi-laptop" style="font-size: 8rem; color: var(--accent-primary); opacity: 0.8; filter: drop-shadow(0 0 20px rgba(99,102,241,0.5));"></i>
         </div>
-    </section>
-
-    <section class="reviews-section">
-    <h2>What Our Students Say</h2>
-    <div class="reviews-grid">
-        <div class="review-card">
-            <div class="stars">
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-            </div>
-            <p>
-                "I had zero confidence in UI/UX when I started, but the way everything was explained made it so easy to understand. 
-                The projects felt real, not just theory. This course genuinely helped me crack my first design role."
-            </p>
-            <div class="reviewer-info">
-                <div class="reviewer-avatar">AK</div>
-                <div>
-                    <h4>Amit Kumar</h4>
-                    <span>UI/UX Designer</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="review-card">
-            <div class="stars">
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star"></i>
-            </div>
-            <p>
-                "As a college student, I wanted practical Data Science skills, not just lectures. 
-                The hands-on projects and assignments really cleared my concepts. 
-                I now feel confident applying for internships."
-            </p>
-            <div class="reviewer-info">
-                <div class="reviewer-avatar">RS</div>
-                <div>
-                    <h4>Rohit Sharma</h4>
-                    <span>Data Analyst</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="review-card">
-            <div class="stars">
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-half"></i>
-            </div>
-            <p>
-                "The Digital Marketing course was very practical and up to date. 
-                The SEO and social media strategies I learned helped me get my first freelance client within a month.
-                Totally worth it!"
-            </p>
-            <div class="reviewer-info">
-                <div class="reviewer-avatar">NP</div>
-                <div>
-                    <h4>Neha Patel</h4>
-                    <span>Digital Marketer</span>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
-    </section>
-
-
-    <section class="faq-section" id="faq">
-        <h2 class="faq-title">Frequently Asked Questions</h2>
-        <p class="faq-subtitle">Everything you need to know before getting started</p>
-
-        <div class="faq-accordion">
-
-            <div class="faq-item">
-                <button class="faq-question">
-                    How do I enroll in a course?
-                </button>
-                <div class="faq-answer">
-                    <div class="faq-answer-content">
-                        Browse our courses, open the course you like, and click
-                        <strong>“View Course”</strong>. Follow the simple enrollment steps.
-                    </div>
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <button class="faq-question">
-                    Are the certificates recognized?
-                </button>
-                <div class="faq-answer">
-                    <div class="faq-answer-content">
-                        Yes! Our certificates are shareable on LinkedIn and can be added to
-                        your resume.
-                    </div>
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <button class="faq-question">
-                    Can I access courses on mobile?
-                </button>
-                <div class="faq-answer">
-                    <div class="faq-answer-content">
-                        Absolutely! EduSphere works perfectly on mobile, tablet, and desktop.
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </section>
-    </main>
-
-<footer class="footer" id="contact">
-  <div class="footer-container">
-
-    <div class="footer-box">
-        <h3>EduSphere</h3>
-        <p>
-            We provide high-quality online courses to help students learn real-world skills and grow their careers.
-        </p>
-    </div>
-
-    <div class="footer-box">
-      <h4>Quick Links</h4>
-      <ul>
-        <li><a href="/">Home</a></li>
-        <li><a href="/about">About Us</a></li>
-        <li><a href="/courses">Courses</a></li>
-      </ul>
-    </div>
-
-    <div class="footer-box">
-      <h4>Support</h4>
-      <ul>
-        <li><a href="/faq">FAQ</a></li>
-        <li><a href="/help">Help Center</a></li>
-        <li><a href="/privacy">Privacy Policy</a></li>
-        <li><a href="/terms">Terms & Conditions</a></li>
-      </ul>
-    </div>
-
-
   </div>
-  <div class="footer-bottom">
-    <div class="social-icons">
-        <i class="bi bi-envelope"></i>
-        <i class="bi bi-linkedin"></i>
-        <i class="bi bi-github"></i>
+</section>
+
+<!-- About Us -->
+<section class="py-5" id="about-us">
+  <div class="container animate-fade-up">
+    <div class="modern-card text-center py-5 px-sm-5 mx-auto" style="max-width: 900px;">
+      <h2 class="fw-bold mb-4">About EduSphere</h2>
+      <p class="text-secondary fs-5 lh-lg mb-0">
+        Welcome to EduSphere, a learning platform built for ambitious individuals who want to grow beyond traditional education. We help you learn practical, real-world skills applicable to modern careers. From technology to business, our courses are designed by seasoned mentors. Whether you're starting fresh or upskilling, EduSphere provides the launchpad for your next big leap.
+      </p>
     </div>
-    <p>© 2026 EduSphere. All rights reserved.</p>
   </div>
-</footer>
+</section>
 
-<button id="backToTop" aria-label="Back to top"><i class="bi bi-arrow-up-circle-fill"></i></button>
+<!-- Featured Courses Preview -->
+<section class="py-5" id="courses">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold">Explore Popular Categories</h2>
+      <p class="text-secondary">Find the perfect course to advance your skills</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="course-card-home text-center">
+          <div class="feature-icon-box mx-auto"><i class="bi bi-code-slash"></i></div>
+          <span class="badge bg-primary bg-opacity-25 text-primary mb-3">Beginner Friendly</span>
+          <h4 class="fw-bold mb-3">Web Development</h4>
+          <p class="text-secondary mb-4">Master HTML, CSS, JavaScript, and modern frameworks from scratch.</p>
+          <a href="/login" class="btn btn-sm btn-outline-premium w-100">Browse Courses</a>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="course-card-home text-center">
+          <div class="feature-icon-box mx-auto"><i class="bi bi-bar-chart-line"></i></div>
+          <span class="badge bg-warning bg-opacity-25 text-warning mb-3">High Demand</span>
+          <h4 class="fw-bold mb-3">Data Science</h4>
+          <p class="text-secondary mb-4">Dive into Python, SQL, and Machine Learning with real datasets.</p>
+          <a href="/login" class="btn btn-sm btn-outline-premium w-100">Browse Courses</a>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="course-card-home text-center">
+          <div class="feature-icon-box mx-auto"><i class="bi bi-brush"></i></div>
+          <span class="badge bg-success bg-opacity-25 text-success mb-3">Creative</span>
+          <h4 class="fw-bold mb-3">UI/UX Design</h4>
+          <p class="text-secondary mb-4">Learn Figma, user research, and wireframing for modern apps.</p>
+          <a href="/login" class="btn btn-sm btn-outline-premium w-100">Browse Courses</a>
+        </div>
+      </div>
+    </div>
+    <div class="text-center mt-5">
+      <a href="/login" class="btn-premium">View All Courses <i class="bi bi-arrow-right ms-2"></i></a>
+    </div>
+  </div>
+</section>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<!-- Features -->
+<section class="py-5">
+  <div class="container">
+    <div class="row g-4 align-items-center">
+      <div class="col-lg-6">
+        <h2 class="fw-bold mb-4">Why Choose EduSphere?</h2>
+        <div class="d-flex mb-4 gap-3">
+          <div class="feature-icon-box flex-shrink-0"><i class="bi bi-award"></i></div>
+          <div>
+            <h5 class="fw-bold">Expert Instructors</h5>
+            <p class="text-secondary">Learn from industry veterans who bring real-world experience and passion into every lesson.</p>
+          </div>
+        </div>
+        <div class="d-flex mb-4 gap-3">
+          <div class="feature-icon-box flex-shrink-0"><i class="bi bi-patch-check"></i></div>
+          <div>
+            <h5 class="fw-bold">Shareable Certificates</h5>
+            <p class="text-secondary">Earn a certified credential for every course you finish. Add it straight to your resume.</p>
+          </div>
+        </div>
+        <div class="d-flex gap-3">
+          <div class="feature-icon-box flex-shrink-0"><i class="bi bi-camera-video"></i></div>
+          <div>
+            <h5 class="fw-bold">High Quality Video</h5>
+            <p class="text-secondary">Enjoy crystal-clear HD video lessons and downloadable resources for offline learning.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 d-none d-lg-block">
+        <div class="modern-card p-2 text-center shadow-glow border-0">
+          <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Students Learning" class="img-fluid rounded" style="opacity: 0.8;">
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-<script>
-    const btn = document.getElementById("menu-btn");
-    const menu = document.querySelector(".menu-container");
+<!-- FAQ -->
+<section class="py-5 mb-5" id="faq">
+  <div class="container" style="max-width: 800px;">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold">Frequently Asked Questions</h2>
+      <p class="text-secondary">Everything you need to know before getting started.</p>
+    </div>
+    <div class="accordion" id="faqAccordion">
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+            How do I enroll in a course?
+          </button>
+        </h2>
+        <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+          <div class="accordion-body">
+            Browse our catalog, select a course you're interested in, and click "Enroll". You must be logged in to your account.
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+            Are the certificates recognized?
+          </button>
+        </h2>
+        <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body">
+            Yes! Our certificates provide proof of completion and can be easily shared on platforms like LinkedIn to showcase your skills.
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
+            Can I access courses on mobile?
+          </button>
+        </h2>
+        <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body">
+            Absolutely. EduSphere is fully responsive and designed to provide a premium learning experience on mobile, tablet, and desktop.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-    // Toggle menu on small screens
-    btn.addEventListener("click", () => { 
-        menu.classList.toggle("show");
-    });
-
-    const nav = document.getElementById("navbar");
-
-    // Change navbar style on scroll
-    window.addEventListener("scroll", () => { 
-        nav.classList.toggle("scrolled", window.scrollY > 60);    
-    });
-
-    // FAQ accordion functionality
-    const faqQuestions = document.querySelectorAll(".faq-question");
-
-    faqQuestions.forEach(question => { 
-        question.addEventListener("click", () => { 
-            // Toggle answer visibility
-            const item = question.parentElement;
-            const answer = item.querySelector(".faq-answer");
-            
-            // Close other answers
-            document.querySelectorAll(".faq-item").forEach(otherItem => {
-                if (otherItem !== item) {
-                    otherItem.classList.remove("active");
-                    otherItem.querySelector(".faq-answer").style.maxHeight = null;
-                }
-            });
-            
-            item.classList.toggle("active");
-            if (item.classList.contains("active")) {
-                answer.style.maxHeight = answer.scrollHeight + "px";
-            } else {
-                answer.style.maxHeight = null;
-            }
-        });
-    });
-
-    // Close menu on nav item click (for small screens)
-    document.querySelectorAll(".navitems").forEach(item => { 
-        item.addEventListener("click", () => {
-            menu.classList.remove("show");
-        });
-    });
-
-    // Back to Top Button Logic
-    const backToTop = document.getElementById("backToTop");
-
-    window.addEventListener("scroll", () => {
-        backToTop.style.display = window.scrollY > 300 ? "block" : "none";
-    });
-
-    backToTop.addEventListener("click", () => {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    });
-
-    // Hide loader on window load
-    window.addEventListener("load", () => {
-        const loader = document.getElementById("loader");
-        loader.classList.add("hide");
-    });
-</script>
-</body>
-</html>
+{% endblock %}

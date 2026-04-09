@@ -1,187 +1,210 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduSphere</title>
+{% extends "base.html" %}
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+{% block title %}EduSphere | Student Dashboard{% endblock %}
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+{% block extra_css %}
+<style>
+  .dashboard-header {
+    background: radial-gradient(circle at right, rgba(99, 102, 241, 0.15) 0%, transparent 60%);
+    padding: 40px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    margin-bottom: 40px;
+  }
+  
+  .stat-card {
+    background: var(--bg-surface);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: var(--border-radius);
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: transform 0.3s;
+  }
+  .stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-soft);
+    border-color: rgba(99, 102, 241, 0.2);
+  }
+  .stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+  }
+  
+  /* Dynamic Course Grids */
+  .enrolled-courses-list, .recommended-course {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+  }
+  
+  .course-card {
+    background: var(--bg-surface);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+  }
+  .course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-soft);
+    border-color: rgba(99, 102, 241, 0.3);
+  }
+  .course-img-wrapper {
+    height: 160px;
+    background: rgba(255,255,255,0.02);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .course-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .pricing-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: var(--border-radius);
+    padding: 30px;
+    text-align: center;
+    transition: all 0.3s;
+  }
+  .pricing-card:hover {
+    background: rgba(255,255,255,0.04);
+    transform: translateY(-5px);
+    border-color: var(--accent-primary);
+  }
+  .pricing-card.premium {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.05));
+    border-color: rgba(99, 102, 241, 0.3);
+  }
+</style>
+{% endblock %}
 
-    <link rel="stylesheet" href="{{ url_for('static',filename='css/home_page.css') }}">
-    
+{% block content %}
 
-</head>
-<body>
-    
-    
-    {% include 'navbar.html' %}
+<!-- Dashboard Greeter -->
+<div class="dashboard-header animate-fade-up">
+  <div class="container d-flex justify-content-between align-items-center">
+    <div>
+      <h2 class="fw-bold mb-1">Welcome back, <span id="page_user_name" class="text-gradient text-capitalize">Student</span> 👋</h2>
+      <p class="text-secondary mb-0">Let's continue your learning journey today</p>
+    </div>
+    <div class="d-none d-md-block">
+      <i class="bi bi-rocket-takeoff-fill text-gradient" style="font-size: 3rem; opacity: 0.8;"></i>
+    </div>
+  </div>
+</div>
 
-    <!-- {% block content %} -->
-    <div class="greet-box" style="border-left: 5px solid #0d6efd">
+<div class="container animate-fade-up" style="animation-delay: 0.1s;">
+  <!-- Stats Row -->
+  <div class="row g-4 mb-5">
+    <div class="col-md-4">
+      <div class="stat-card">
+        <div class="stat-icon bg-primary bg-gradient shadow-glow"><i class="bi bi-book"></i></div>
         <div>
-            <!-- for user name----------------------------------------- -->
-            <strong>Welcome, <span id="page_user_name" style="text-transform: capitalize;">User</span> 👋</strong>
-            <span class="text-muted">Let's continue your learning journey today</span>
+          <p class="text-secondary mb-0">Courses Enrolled</p>
+          <h3 class="fw-bold mb-0 progress-score" id="enroll_count">0</h3>
         </div>
-        <i class="bi bi-rocket-takeoff-fill d-none d-md-block rocket-icon"></i>
+      </div>
     </div>
-
-
-
-    <!-- user activity progress report---------------------------------------------- -->
-    <div class="activity-list">
-        <div class="activitys">
-            <div class="acitvity-details">
-                <span class="acitivity-title text-muted">Courses Enrolled</span>
-                <span class="complete-number progress-score" id="enroll_count">0</span>
-            </div>
-            <div class="activity-logo" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">
-                <i class="bi bi-book"></i>
-            </div>
+    <div class="col-md-4">
+      <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #ec4899, #be185d); box-shadow: 0 0 15px rgba(236,72,153,0.4);"><i class="bi bi-check2-square"></i></div>
+        <div>
+          <p class="text-secondary mb-0">Courses Completed</p>
+          <h3 class="fw-bold mb-0 progress-score" id="complete_count">0</h3>
         </div>
-
-        <div class="activitys">
-            <div class="acitvity-details">
-                <span class="acitivity-title text-muted">Courses Completed</span>
-                <span class="complete-number progress-score" id="complete_count">0</span>
-            </div>
-            <div class="activity-logo" style="background: linear-gradient(135deg, #ec4899, #be185d);">
-                <i class="bi bi-check2-square"></i>
-            </div>
-        </div>
-        
-        <div class="activitys">
-            <div class="acitvity-details">
-                <span class="acitivity-title text-muted">Certificates</span>
-                <span class="complete-number progress-score" id="certi_count">0</span>
-            </div>
-            <div class="activity-logo" style="background: linear-gradient(135deg, #10b981, #059669);">
-                <i class="bi bi-trophy"></i>
-            </div>
-        </div>
+      </div>
     </div>
-
-
-    <div style="width: 90%; margin: 6dvh auto 20px; font-size: 1.5rem; font-weight: 700; color: #1e293b;">
-        <span id="mycourses"><i class="bi bi-bar-chart-line-fill text-primary me-2"></i>Learning Progress</span>
-    </div>
-    <!-- disply of courses enrolled by users---------------------------------------- -->
-    <div class="enrolled-courses-list">
-        <!-- this seciton will added by using javasctript -->
-         <div class="course_area container bg-info border-dark rounded d-none" id="course_area">
-            <div class="text-center p-5">No Course Enrolled!!!</div>
+    <div class="col-md-4">
+      <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 0 15px rgba(16,185,129,0.4);"><i class="bi bi-trophy"></i></div>
+        <div>
+          <p class="text-secondary mb-0">Certificates</p>
+          <h3 class="fw-bold mb-0 progress-score" id="certi_count">0</h3>
         </div>
+      </div>
     </div>
+  </div>
 
-
-
-    <div style="width: 90%; margin: 8dvh auto 20px; font-size: 1.5rem; font-weight: 700; color: #1e293b;" id="showCourses">
-        <span><i class="bi bi-stars text-warning me-2"></i>Recommended For You</span>
+  <!-- Active Learning -->
+  <div class="mb-5">
+    <div class="d-flex align-items-center mb-4">
+      <h4 class="fw-bold mb-0"><i class="bi bi-bar-chart-line-fill text-primary me-2"></i> Your Learning</h4>
     </div>
-    <!-- to add all course data -------------------------------------------------- -->
-    <div class="recommended-course">
-        <!-- this will be created by using js--------- -->
-        <div class="course_area container bg-info border-dark rounded d-none" id="course_area">
-            <div class="text-center p-5">No Course Available!!!</div>
+    <div class="enrolled-courses-list" id="enrolled_courses_list">
+       <div class="course_area text-center py-5 glass-panel w-100 grid-column-span-full d-none">
+        <i class="bi bi-journal-x fs-1 text-secondary mb-3"></i>
+        <h5 class="text-secondary">No Courses Enrolled Yet</h5>
+        <p class="text-muted small">Explore recommended courses below to get started.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recommended Courses -->
+  <div class="mb-5" id="showCourses">
+    <div class="d-flex align-items-center mb-4">
+      <h4 class="fw-bold mb-0"><i class="bi bi-stars text-warning me-2"></i> Recommended For You</h4>
+    </div>
+    <div class="recommended-course" id="recommended_course_list">
+      <div class="course_area text-center py-5 glass-panel w-100 grid-column-span-full d-none">
+        <i class="bi bi-search fs-1 text-secondary mb-3"></i>
+        <h5 class="text-secondary">No Courses Available</h5>
+      </div>
+    </div>
+  </div>
+
+  <!-- Packages Section -->
+  <div class="mb-5">
+    <div class="d-flex align-items-center mb-4">
+      <h4 class="fw-bold mb-0"><i class="bi bi-cash-coin text-success me-2"></i> Buy Points</h4>
+    </div>
+    <div class="row g-4 justify-content-center">
+      <div class="col-md-4">
+        <div class="pricing-card">
+          <span class="badge bg-secondary mb-3">Basic</span>
+          <h4 class="fw-bold">Starter</h4>
+          <h2 class="fw-bold my-3">₹99</h2>
+          <p class="text-secondary mb-4"><i class="bi bi-gem text-info me-2"></i>1000 Points</p>
+          <button class="btn btn-outline-premium w-100" points="1000" onclick="buyPoints(this)">Buy Starter</button>
         </div>
-    </div>
-    
-    <!-- for packages section---------------------   -->
-    <div style="width: 90%; margin: 8dvh auto 20px; font-size: 1.5rem; font-weight: 700; color: #1e293b;" id="showCourses">
-        <span><i class="bi bi-cash-coin me-2 text-success"></i></i> Packages</span>
-    </div>
-    <div class="container py-3">
-        <div class="row g-4 justify-content-center">
-            <!-- Starter -->
-            <div class="col-md-4">
-                <div class="package-box p-4 text-center bg-white">
-                    <span class="badge bg-primary mb-2">Basic</span>
-                    <h4 class="fw-bold">Starter</h4>
-                    <p class="price">₹99</p>
-                    <p class="points">💎 1000 Points</p>
-                    <button class="btn btn-outline-primary w-100" points="1000" onclick="buyPoints(this)">Buy Starter</button>
-                </div>
-            </div>
-
-            <!-- Pro -->
-            <div class="col-md-4">
-                <div class="package-box p-4 text-center bg-white">
-                    <span class="badge bg-primary mb-2">Best Value</span>
-                    <h4 class="fw-bold">Pro</h4>
-                    <p class="price">₹199</p>
-                    <p class="points">💎 2500 Points</p>
-                    <button class="btn btn-outline-primary w-100" points="2500" onclick="buyPoints(this)">Buy Pro</button>
-                </div>
-            </div>
-
-            <!-- Elite -->
-            <div class="col-md-4">
-                <div class="package-box p-4 text-center bg-white">
-                    <span class="badge bg-success mb-2">Premium</span>
-                    <h4 class="fw-bold">Elite</h4>
-                    <p class="price">₹499</p>
-                    <p class="points">💎 5000 Points</p>
-                    <button class="btn btn-outline-primary w-100" points="5000" onclick="buyPoints(this)">Buy Elite</button>
-                </div>
-            </div>
-
+      </div>
+      <div class="col-md-4">
+        <div class="pricing-card premium position-relative">
+          <div class="position-absolute top-0 start-50 translate-middle badge bg-primary">Most Popular</div>
+          <span class="badge bg-primary bg-opacity-25 text-primary mb-3">Best Value</span>
+          <h4 class="fw-bold">Pro</h4>
+          <h2 class="fw-bold my-3 text-gradient">₹199</h2>
+          <p class="text-secondary mb-4"><i class="bi bi-gem text-info me-2"></i>2500 Points</p>
+          <button class="btn btn-premium w-100" points="2500" onclick="buyPoints(this)">Buy Pro</button>
         </div>
+      </div>
+      <div class="col-md-4">
+        <div class="pricing-card">
+          <span class="badge bg-success mb-3">Premium</span>
+          <h4 class="fw-bold">Elite</h4>
+          <h2 class="fw-bold my-3">₹499</h2>
+          <p class="text-secondary mb-4"><i class="bi bi-gem text-info me-2"></i>5000 Points</p>
+          <button class="btn btn-outline-premium w-100 border-success text-success" points="5000" onclick="buyPoints(this)">Buy Elite</button>
+        </div>
+      </div>
     </div>
-    <!-- footer part--------------------------------------------------------- -->
+  </div>
+</div>
 
-    <footer class="footer">
-        <div class="footer-container">
+{% endblock %}
 
-            <div class="footer-box">
-                <h3 class="fw-bold"><i class="bi bi-globe2 me-2"></i>EduSphere</h3>
-                <p class="text-white-50">
-                    We provide high-quality online courses to help students learn real-world skills and grow their careers from anywhere in the world.
-                </p>
-            </div>
-
-            <div class="footer-box">
-                <h4>Quick Links</h4>
-                <ul>
-                    <li><a href="/">Home</a></li>
-                    <li><a href="/about">About Us</a></li>
-                    <li><a href="/courses">Courses</a></li>
-                    <li><a href="/career">Careers</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-box">
-                <h4>Support</h4>
-                <ul>
-                    <li><a href="/faq">FAQ</a></li>
-                    <li><a href="/help">Help Center</a></li>
-                    <li><a href="/privacy">Privacy Policy</a></li>
-                    <li><a href="/terms">Terms & Conditions</a></li>
-                </ul>
-            </div>
-
-
-        </div>
-
-        <div class="footer-bottom">
-            <div class="social-icons">
-                <i class="bi bi-envelope-fill"></i>
-                <i class="bi bi-linkedin"></i>
-                <i class="bi bi-github"></i>
-            </div>
-            <p>© 2026 EduSphere Inc. All rights reserved.</p>
-        </div>
-    </footer>
-
-
-    <script src="{{ url_for('static',filename='js/home_page.js') }}"></script>
-
-    
-
-    <!-- {% endblock %} -->
-</body>
-</html>
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/home_page.js') }}"></script>
+{% endblock %}

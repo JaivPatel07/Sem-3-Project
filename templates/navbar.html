@@ -1,81 +1,83 @@
-<!-- navbar--------------------------------------------- -->
-<nav class="navbar navbar-expand-xxl text-white sticky-top">
-    <div class="container-fluid">
-        <a class="navbar-brand ms-2 fw-bold d-flex align-items-center gap-2" href="#" style="color: #fff; font-size: 1.5rem;">
-            <i class="bi bi-globe2"></i> EduSphere
-        </a>
+<!-- navbar.html -->
+<nav class="navbar navbar-expand-lg sticky-top glass-panel" style="border-radius: 0; border-top: none; border-left: none; border-right: none;" id="mainNavbar">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="/" style="font-size: 1.5rem;">
+      <i class="bi bi-globe2 text-gradient"></i> EduSphere
+    </a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
-            <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
-        </button>
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="bi bi-list fs-2"></i>
+    </button>
 
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-4">
-                <li class="nav-item">
-                    <a class="nav-link" aria-current="page" href="/home" id="nav_name_dashboard">Dashboard</a>
-                </li>
-                <li class="nav-item" id="nav_name_publice">
-                    <a class="nav-link" href="/publishCourse" >Publish Course</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/myCertificates" id="nav_name_certi">Certificates</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#showCourses" id="nav_name_courses">Courses</a>
-                </li>
-            </ul>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4 gap-2" id="navLinks">
+        <li class="nav-item">
+          <a class="nav-link " href="/">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link " href="#about-us">About</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link " href="#courses">Courses</a>
+        </li>
+      </ul>
 
-
-            <!-- nav bar second part for search and user input field---------- -->
-            <div class="nav_second_part">
-                <form class="d-flex" role="search">
-                    <input type="search" class="form-control search_field border-start-0" placeholder="Search for courses..." style="width: 25dvw; min-width: 250px;">
-                </form>
-
-                <div class="user_logo ms-4 me-3">
-                    <img id="nav_user_logo" style="border-radius: 50%;"></img>
-                    <!-- <i class="bi bi-person-circle" style="font-size: 1.5rem; color: #fff;"></i> -->
-                    <a class="d-none d-md-block page_user_name" style="margin-left: 10px; margin-bottom: 2px; color: white; text-decoration: none; text-transform: capitalize;" href="/userprofile" id="nav_name_text">Profile</a>
-                </div>
-            </div>
-        </div>
+      <div class="d-flex align-items-center gap-3 mt-3 mt-lg-0" id="navAuthSection">
+        <a href="/login" class="btn-outline-premium" id="navLoginBtn">Sign In</a>
+        <a href="/login?mode=signup" class="btn-premium" id="navSignupBtn">Get Started</a>
+      </div>
     </div>
+  </div>
 </nav>
+
 <script>
-    const nav_name_dashboard = document.getElementById('nav_name_dashboard') 
-    const nav_certificates = document.getElementById('nav_name_certi') 
-    const nav_courses = document.getElementById('nav_name_courses') 
-    const nav_publice_course = document.getElementById('nav_name_publice')
-    const nav_search_field = document.querySelector('.nav_second_part form')
-    const nav_user_logo = document.getElementById('nav_user_logo')
-    const nav_user_text = document.querySelector('#nav_name_text')
-    
-    // to change nav_bar link property as per login type-------
+  document.addEventListener('DOMContentLoaded', () => {
+    const nav = document.getElementById("mainNavbar");
+    window.addEventListener("scroll", () => {
+      if (window.scrollY > 50) {
+        nav.style.background = 'rgba(255, 255, 255, 0.95)'; /* light solid */
+      } else {
+        nav.style.background = 'var(--bg-glass)';
+      }
+    });
 
-    fetch('/getLoginData')
-  .then(res => res.json())
-  .then(data => {
+    fetch('/getLoginData', { cache: "no-cache" })
+      .then(res => res.json())
+      .catch(() => ({}))
+      .then(data => {
+        const navLinks = document.getElementById('navLinks');
+        const authSection = document.getElementById('navAuthSection');
+        
+        if (data && data.user_name) {
+          const firstLetter = data.user_name[0].toUpperCase();
+          
+          let linksHtml = '';
+          if (data.isInstituate) {
+            linksHtml += `
+              <li class="nav-item"><a class="nav-link " href="/Instituate"><i class="bi bi-grid me-1"></i> Dashboard</a></li>
+              <li class="nav-item"><a class="nav-link " href="/publishCourse"><i class="bi bi-cloud-arrow-up me-1"></i> Publish Course</a></li>
+              <li class="nav-item"><a class="nav-link " href="/instituate_user"><i class="bi bi-people me-1"></i> Student Manager</a></li>
+            `;
+          } else {
+            linksHtml += `
+              <li class="nav-item"><a class="nav-link " href="/home"><i class="bi bi-grid me-1"></i> Dashboard</a></li>
+              <li class="nav-item"><a class="nav-link " href="/myCertificates"><i class="bi bi-award me-1"></i> Certificates</a></li>
+              <li class="nav-item"><a class="nav-link " href="/home#showCourses"><i class="bi bi-book me-1"></i> Explore Courses</a></li>
+            `;
+          }
+          navLinks.innerHTML = linksHtml;
 
-    const isInstituate = data.isInstituate
-    const user_name = data.user_name
-
-    if (!user_name) return
-
-    const firstLetter = user_name[0].toUpperCase()
-
-    if (isInstituate) {
-        nav_name_dashboard.href = '/Instituate'
-        nav_certificates.innerText = 'UserManager'
-        nav_certificates.href = '/instituate_user'
-        nav_courses.classList.add('d-none')
-        nav_user_text.href = '/instituateProfile'
-    } else {
-        nav_publice_course.classList.add('d-none')
-    }
-
-    nav_user_text.innerText = user_name
-    nav_user_logo.src = `https://placehold.co/30x30/png?text=${firstLetter}`
-  })
-
-
+          const profileLink = data.isInstituate ? '/instituateProfile' : '/userprofile';
+          authSection.innerHTML = `
+            <a href="${profileLink}" class="d-flex align-items-center gap-2 text-decoration-none px-2 rounded hover-bg-dark" style="transition:0.3s">
+              <div class="rounded-circle d-flex justify-content-center align-items-center" style="width: 36px; height: 36px; background: var(--accent-gradient); font-weight: bold; box-shadow: var(--shadow-glow)">
+                ${firstLetter}
+              </div>
+              <span class="fw-semibold text-truncate" style="max-width:120px; text-transform: capitalize;">${data.user_name}</span>
+            </a>
+            <a href="/logout" class="btn btn-sm btn-outline-danger ms-2 rounded-circle" title="Logout" style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;"><i class="bi bi-box-arrow-right"></i></a>
+          `;
+        }
+      });
+  });
 </script>

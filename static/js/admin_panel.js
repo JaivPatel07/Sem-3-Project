@@ -48,9 +48,9 @@ function loadUsers() {
                     <td>${user.name}</td>
                     <td>${user.email}</td>
                     <td>
-                        <button class="btn btn-sm btn-outline-danger"
+                        <button class="btn btn-sm btn-outline-danger" title="Delete User"
                             onclick="deleteUser(${user.user_id})">
-                            <i class="fas fa-trash"></i>
+                            <i class="bi bi-trash-fill"></i>
                         </button>
                     </td>
                 </tr>
@@ -62,13 +62,13 @@ function loadUsers() {
                     <td>${user.name}</td>
                     <td>${user.email}</td>
                     <td>
-                        <button class="btn btn-sm btn-outline-primary me-1"
+                        <button class="btn btn-sm btn-outline-primary me-1" title="View Published Courses"
                             onclick="viewInstituteCourses(${user.user_id})">
-                            <i class="fas fa-eye"></i>
+                            <i class="bi bi-eye-fill"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-danger"
+                        <button class="btn btn-sm btn-outline-danger" title="Delete Institute"
                             onclick="deleteUser(${user.user_id})">
-                            <i class="fas fa-trash"></i>
+                            <i class="bi bi-trash-fill"></i>
                         </button>
                     </td>
                 </tr>

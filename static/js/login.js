@@ -1,150 +1,127 @@
-const title = document.querySelector('.form-title')
-const btn = document.getElementById('btn')
-const submit_btn = document.getElementById('sub_btn')
+document.addEventListener('DOMContentLoaded', () => {
+    const title = document.getElementById('form-title');
+    const subtitle = document.getElementById('form-subtitle');
+    const toggleBtn = document.getElementById('btn');
+    const submitBtn = document.getElementById('sub_btn');
+    const toggleText = document.getElementById('toggle-text');
+    const form = document.getElementById('authForm');
+    
+    const user_email = document.getElementById('user_email');
+    const user_pass = document.getElementById('user_pass');
+    
+    const email_error = document.getElementById('email_error');
+    const pass_error = document.getElementById('pass_error');
+    
+    const form_mode = document.getElementById('form_mode').value;
+    const dynamicFields = document.getElementById('dynamic-fields');
+    
+    let isSignup = false;
 
-
-const form = document.querySelector('form')
-const user_email = document.getElementById('user_email')
-const user_pass = document.getElementById('user_pass')
-
-// to display errors-------------------
-const email_error = document.getElementById('email_error')
-const pass_error = document.getElementById('pass_error')
-const main_error = document.getElementById('main_error')
-
-// to get mode of the form is it is signup or signin---------------
-const form_mode = document.getElementById('form_mode').value
-
-// to store user_data-------------------------
-user_data = {}
-
-let signup = false;
-// to check form mode----------
-if (form_mode === 'signup'){
-    if (!document.getElementById('name-field')) {
-        form.insertAdjacentHTML('afterbegin',
-            `
-            <div id="name-field">
-                <label for="name">Name</label>
-                <input type="name" placeholder="name" id="user_name" name="user_name" required>
-                <span class="error" id="name_error">Invalid Name!!!</span>
+    const buildSignupFields = () => {
+        return `
+            <div class="mb-3 position-relative" id="name-container">
+                <div class="form-floating">
+                    <input type="text" class="form-control premium-input" id="user_name" name="user_name" placeholder="John Doe" required>
+                    <label for="user_name">Full Name</label>
+                </div>
+                <div class="error-text" id="name_error">Name must be at least 3 letters.</div>
             </div>
-            `
-        )
-    }
-    submit_btn.innerText = 'Sign up'
-    btn.innerText = 'Sign in'
-    signup = true
-}
+            <div class="form-check form-switch mb-3" id="role-container">
+                <input class="form-check-input" type="checkbox" role="switch" id="roleCheck" name="roleCheck">
+                <label class="form-check-label text-secondary" for="roleCheck">Sign up as an Institute</label>
+            </div>
+        `;
+    };
 
-btn.addEventListener('click',() => {
-    signup = !signup
-    
-    // when signup page-------------
-    if (signup) {
-        main_error.innerText = ''
-        title.innerHTML = 'Create Account'
-
-        // to add name input filed for signup page---------------------
-        if (!document.getElementById('name-field')) {
-            form.insertAdjacentHTML('afterbegin',
-                `
-                <div id="name-field">
-                    <label for="name">Name</label>
-                    <input type="name" placeholder="name" id="user_name" name="user_name" required>
-                    <span class="error" id="name_error">Invalid Name!!!</span>
-                </div>
-                `
-            )
-            form.insertAdjacentHTML('beforeend',
-                `
-                <div id="role-check">
-                    <input type="checkbox" id="roleCheck" name='roleCheck'>
-                    <label for="roleCheck">SignUp as Institute</label>
-                </div>
-                `
-            )
-        }
-        submit_btn.innerText = 'Sign up'
-        btn.innerText = 'Sign in'
-    }
-
-    // when signin page----------------
-    else {
-        main_error.innerText = ''
-        title.innerHTML = 'Welcome Back'
-
-        // to remove name user field----------
-        const nameField = document.getElementById('name-field')
-        const checkBox = document.getElementById('role-check')
-        // to remove name input field and check box
-        if (nameField) {
-            nameField.remove()
-            checkBox.remove()
-        }
-        submit_btn.innerText = 'Sign in'
-        btn.innerText = 'Sign up'
-    }
-
-})
-
-
-// regex verification---------------
-const name_reg = /^[A-Za-z]{3,}$/
-const email_reg = /^(?=.{13,}$)[A-Za-z0-9.%+-]+@gmail.com$/
-const pass_reg = /^(?=.*[A-Z])[A-Za-z0-9@_]{6,8}$/
-
-// to do form validation-------------------
-form.addEventListener('submit', (e) => {
-    e.preventDefault()
-
-    let error = false
-    user_data = {}
-
-
-    // Name validation (only for signup)--------------------------
-    if (document.getElementById('name-field')) {
-
-        const user_name = document.getElementById('user_name')
-        const name_error = document.getElementById('name_error')
-
-        
-
-        if (name_reg.test(user_name.value.trim())) {
-            user_data.name = user_name.value
-            name_error.classList.remove('show_error')
+    const setMode = (toSignup) => {
+        isSignup = toSignup;
+        if (isSignup) {
+            title.innerText = 'Create Account';
+            subtitle.innerText = 'Join EduSphere and start learning';
+            submitBtn.innerText = 'Sign Up';
+            toggleText.innerText = 'Already have an account?';
+            toggleBtn.innerText = 'Sign In';
+            
+            if (dynamicFields.innerHTML.trim() === '') {
+                dynamicFields.innerHTML = buildSignupFields();
+            }
         } else {
-            name_error.classList.add('show_error')
-            error = true
+            title.innerText = 'Welcome Back';
+            subtitle.innerText = 'Please sign in to continue';
+            submitBtn.innerText = 'Sign In';
+            toggleText.innerText = 'Don\'t have an account?';
+            toggleBtn.innerText = 'Sign Up';
+            
+            dynamicFields.innerHTML = ''; // Remove dynamically injected fields
         }
-    }
+    };
 
-    // Email validation----------------
-    if (email_reg.test(user_email.value)) {
-        user_data.email = user_email.value
-        email_error.classList.remove('show_error')
+    // Initialize mode
+    if (form_mode === 'signup') {
+        setMode(true);
     } else {
-        email_error.classList.add('show_error')
-        error = true
+        setMode(false);
     }
 
-    // Password validation--------------------
-    if (pass_reg.test(user_pass.value)) {
-        user_data.password = user_pass.value
-        if (user_pass.value.length<6 || user_pass.value.length>8) {
-            pass_error.innerText = 'Password Length Must be Between 6 to 8'
-        }
-        else {
-            pass_error.innerText = 'In-Valid Password Formate!!!'
-        }
-        pass_error.classList.remove('show_error')
-    } else {
-        pass_error.classList.add('show_error')
-        error = true
-    }
+    toggleBtn.addEventListener('click', () => {
+        // Toggle the internal state
+        setMode(!isSignup);
+    });
 
-    
-    if (!error) {
-        form.submit()
-    }  
-})
+    // Validation patterns
+    const name_reg = /^[A-Za-z\s]{3,}$/;
+    const email_reg = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        let error = false;
+
+        // Name Validation
+        if (isSignup) {
+            const user_name = document.getElementById('user_name');
+            const name_error = document.getElementById('name_error');
+            
+            if (name_reg.test(user_name.value.trim())) {
+                name_error.classList.remove('show_error');
+            } else {
+                name_error.classList.add('show_error');
+                error = true;
+            }
+        }
+
+        // Email Validation
+        if (email_reg.test(user_email.value.trim())) {
+            email_error.classList.remove('show_error');
+        } else {
+            email_error.classList.add('show_error');
+            error = true;
+        }
+
+        // Password Validation
+        if (isSignup) {
+            const pass_reg = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\w\W]{8,}$/;
+            if (pass_reg.test(user_pass.value)) {
+                pass_error.classList.remove('show_error');
+            } else {
+                pass_error.innerText = "Password must be at least 8 chars long with 1 Uppercase, 1 Lowercase, and 1 Number.";
+                pass_error.classList.add('show_error');
+                error = true;
+            }
+        } else {
+            if (user_pass.value.trim().length > 0) {
+                pass_error.classList.remove('show_error');
+            } else {
+                pass_error.innerText = "Password is required.";
+                pass_error.classList.add('show_error');
+                error = true;
+            }
+        }
+
+        if (!error) {
+            // Give button a loading state
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Processing...';
+            submitBtn.disabled = true;
+            form.submit();
+        }
+    });
+});

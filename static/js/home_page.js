@@ -4,158 +4,120 @@ const enroll_count = document.getElementById('enroll_count')
 const complete_count = document.getElementById('complete_count')
 const certi_count = document.getElementById('certi_count')
 
-const user_enrolled = document.getElementsByClassName('enrolled-courses-list')
-const course_diplay = document.getElementsByClassName('recommended-course')
+const user_enrolled = document.getElementById('enrolled_courses_list')
+const course_display = document.getElementById('recommended_course_list')
 const user_progress_score = document.getElementsByClassName('progress-score')
 
-// to display box when no course is there------------
-const course_area  = document.getElementsByClassName('course_area')
+const course_areas  = document.getElementsByClassName('course_area')
 
-// to show message to the user-----------------------
-// show message to the user
-function info_msg(msg, color = 'info') {
-    const mssg = `
-        <div class="alert alert-${color} alert-dismissible position-absolute mt-5 start-50 translate-middle fade show w-50"
-             style="z-index:1055;">
-            ${msg}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    `;
-
-    document.body.insertAdjacentHTML('afterbegin', mssg)
-
-    // to remove error after 1second-------------
-    location.reload()
-    setTimeout(() => {
-        const alertEl = document.querySelector('.alert')
-        if (alertEl) {
-            bootstrap.Alert.getOrCreateInstance(alertEl).close()
-        }
-        // refresh whole page after 1 second
-    }, 1000)
-}
-
-
-// to set user_name for the page--------------
-function setUserName(user_name=null) {
-    user_name_field.innerText = user_name
-}
-
-
-function setUserProgress(score) {
-    for (let i = 0; i < score.length; i++) {
-        user_progress_score[i].innerText = score[i]
-        
+function info_msg(msg, type = 'success') {
+    if (typeof showGlobalToast === 'function') {
+        showGlobalToast(msg, type);
+    } else {
+        alert(msg);
     }
 }
 
-// setUserProgress([1,2,3])
+function setUserName(user_name=null) {
+    if(user_name_field) user_name_field.innerText = user_name;
+}
 
-
-// to add the list of course that are enrolled bu users-----------------------------------
-function showUserCourse(coursename,progress,course_id) {
+function showUserCourse(coursename, progress, course_id) {
     const en_course = `
-    <div class="enrolled-courses">
-        <img src="https://placehold.co/100x100/png?text=${coursename.slice(0,2)}" alt="Course" class="enrolled-courses-img rounded-3">
-        <div class="en-course-details">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <span style="font-weight: 700; font-size: 1.1rem;">${coursename}</span>
-                <span class="badge bg-primary bg-opacity-10 text-primary">Active</span>
+    <div class="course-card">
+        <div class="course-img-wrapper" style="background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(168,85,247,0.2))">
+            <h1 class="text-white opacity-50 fw-bold m-0" style="font-size: 4rem;">${coursename.substring(0,2).toUpperCase()}</h1>
+        </div>
+        <div class="p-4 d-flex flex-column flex-grow-1">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <h5 class="fw-bold mb-0 text-truncate" title="${coursename}">${coursename}</h5>
+                <span class="badge bg-primary bg-opacity-25 text-primary">Active</span>
             </div>
-            <div class="progress-bar">
-                <div class="bar-stick" style="width: ${Math.trunc(progress)}%;"></div>
+            
+            <div class="mt-auto">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <small class="text-secondary fw-semibold">Progress</small>
+                    <small class="text-primary fw-bold">${progress.toFixed(0)}%</small>
+                </div>
+                <div class="progress" style="height: 6px; background: rgba(255,255,255,0.1);">
+                    <div class="progress-bar bg-primary" role="progressbar" style="width: ${progress}%" aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <button class="btn btn-outline-premium w-100 mt-4" course_id="${course_id}" onclick='startLearning(this)'>
+                    Continue Learning <i class="bi bi-arrow-right"></i>
+                </button>
             </div>
-            <div class="d-flex justify-content-between mt-2">
-                <span style="font-size: 0.85rem; color: #64748b;">${progress.toFixed(2)}% completed</span>   
-            </div>
-            <button class="btn btn-primary btn-sm mt-3 w-100 rounded-pill" course_id=${course_id} onclick='startLearning(this)'>Continue Learning <i class="bi bi-arrow-right"></i></button>
         </div>
     </div>
     `
-
-    user_enrolled[0].insertAdjacentHTML('beforeend',en_course)
+    user_enrolled.insertAdjacentHTML('beforeend', en_course);
 }
 
-// to use method-------------
-// showUserCourse('Python Programming',90)
-
-
-// to add general courses list----------------------------------------------------
-function showRecommendedCourses(coursename,owner,price,course_id) {
+function showRecommendedCourses(coursename, owner, price, course_id) {
     const course_card = `
     <div class="course-card">
-        <div class="position-relative">
-            <img src="https://placehold.co/400x250/png?text=${coursename.split()}" alt="" class="course-image">
+        <div class="course-img-wrapper" style="background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(5,150,105,0.2))">
+            <i class="bi bi-laptop" style="font-size: 4rem; color: rgba(255,255,255,0.2);"></i>
         </div>
-        <div class="p-3 d-flex flex-column h-100">
-            <span class="course-title">${coursename}</span>
-
-            <span class="course-author text-muted small mt-1">by ${owner}</span>
+        <div class="p-4 d-flex flex-column flex-grow-1">
+            <h5 class="fw-bold mb-1 text-truncate" title="${coursename}">${coursename}</h5>
+            <p class="text-secondary small mb-3">by <span class="text-white opacity-75">${owner}</span></p>
             
-            <div class="d-flex justify-content-between align-items-center mt-auto">
-                <span class="review">
-                    <i class="bi bi-star-fill"></i> 4.8 <span class="text-muted ms-1">(1.2k)</span>
-                </span>
-
-                <span class="course-price mt-3">💎 ${price}</span>
+            <div class="d-flex align-items-center gap-1 mb-3">
+                <i class="bi bi-star-fill text-warning" style="font-size:0.8rem;"></i>
+                <i class="bi bi-star-fill text-warning" style="font-size:0.8rem;"></i>
+                <i class="bi bi-star-fill text-warning" style="font-size:0.8rem;"></i>
+                <i class="bi bi-star-fill text-warning" style="font-size:0.8rem;"></i>
+                <i class="bi bi-star-half text-warning" style="font-size:0.8rem;"></i>
+                <span class="text-secondary small ms-1">(4.8)</span>
             </div>
             
-            <button class="btn btn-outline-primary mt-3 w-100 fw-bold" course_id=${course_id} onclick="EnrollCourse(this)">Enroll Now</button>
+            <div class="mt-auto d-flex justify-content-between align-items-center pt-3 border-top" style="border-color: rgba(255,255,255,0.05)!important">
+                <div class="fw-bold text-gradient"><i class="bi bi-gem me-1"></i> ${price} pts</div>
+                <button class="btn btn-sm btn-premium" course_id="${course_id}" onclick="EnrollCourse(this)">Enroll</button>
+            </div>
         </div>
     </div>
     `
-
-    course_diplay[0].insertAdjacentHTML('beforeend',course_card)
+    course_display.insertAdjacentHTML('beforeend', course_card);
 }
 
-// to use method-------------
-// showRecommendedCourses('Full Stack','xyz',1500)
-
-
-// to get user name ----------------
 fetch('/user/data').then(e => e.json())
 .then(data => setUserName(data.name))
 
-
-// to get user_enrolled courses data-------------------
 fetch('/user_courses/data').then(e => e.json())
 .then(data => {
-    enroll_count.innerText = data.length-2
-    complete_count.innerText = data[data.length-2].completed
-    certi_count.innerText = data[data.length-1].certificate_count
+    if(enroll_count) enroll_count.innerText = data.length - 2;
+    if(complete_count) complete_count.innerText = data[data.length-2].completed;
+    if(certi_count) certi_count.innerText = data[data.length-1].certificate_count;
 
-    // console.log(data)
-    if (data.length<3) {
-        course_area[0].classList.remove('d-none')
-        return
+    if (data.length < 3) {
+        course_areas[0].classList.remove('d-none');
+        course_areas[0].style.gridColumn = "1 / -1";
+        return;
     }
-    course_area[0].classList.add('d-none')
-    for (let index = 0; index < data.length-2; index++) {
-        key = data[index]
-        showUserCourse(key.course_title,key.course_progress,key.course_id)
+    course_areas[0].classList.add('d-none');
+    for (let index = 0; index < data.length - 2; index++) {
+        const key = data[index];
+        showUserCourse(key.course_title, key.course_progress, key.course_id);
     }
 })
 
-
-
-// to get all course data-------------------
 fetch('/courses/data').then(e => e.json())
 .then(data => {
-    if (data.length===0) {
-        course_area[1].classList.remove('d-none')
-        return
+    if (data.length === 0) {
+        course_areas[1].classList.remove('d-none');
+        course_areas[1].style.gridColumn = "1 / -1";
+        return;
     }
-    course_area[1].classList.add('d-none')
-    // console.log(data)
+    course_areas[1].classList.add('d-none');
     for (const key of data) {
-        showRecommendedCourses(key.course_title,key.course_owner,key.course_price,key.course_id)
+        showRecommendedCourses(key.course_title, key.course_owner, key.course_price, key.course_id);
     }
 })
 
-
-// to add course to user data when enroll Now btn is clicked-----------
 function EnrollCourse(btn) {
-    course_id = btn.getAttribute('course_id')
+    const course_id = btn.getAttribute('course_id')
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
     fetch("/enrollCourse", {
         method: "POST",
         headers: {
@@ -165,31 +127,36 @@ function EnrollCourse(btn) {
             courseId: course_id
         })
     })
-    .then(res => res.json())
-    .then(data => {
-        info_msg(data.message,'info')
+    .then(res => res.json().then(data => ({status: res.status, body: data})))
+    .then(({status, body}) => {
+        if(status >= 400) {
+            info_msg(body.error || body.message, 'error');
+            btn.innerHTML = 'Enroll';
+        } else {
+            info_msg(body.message, 'success');
+            setTimeout(() => location.reload(), 1500);
+        }
     })
-    .catch(err => console.error(err))
+    .catch(err => {
+        console.error(err);
+        btn.innerHTML = 'Enroll';
+    });
 }
 
-// to open the enrolled module page-----------------------------------
 function startLearning(btn) {
     const course_id = btn.getAttribute('course_id')
-    // to opne the page of that id--------
     window.location.href = `/myCourse/${course_id}`
 }
 
-// to open the all certificate list page-----------------------------------
 function openCertificate_ls(btn) {
-    // certificate list is a single page route
     window.location.href = '/myCertificates'
 }
 
-
-// add points to user account when user click on btn-------------------------------
 function buyPoints(btn) {
     const points_buy = btn.getAttribute('points')
-    console.log(points_buy)
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+    
     fetch('/buyPackage',{
         method: "POST",
         headers: {
@@ -198,9 +165,18 @@ function buyPoints(btn) {
         body: JSON.stringify({
             points: points_buy
         })
-    }).then (e=>e.json())
-    .then(data => {
-        info_msg(data.message,'success')
+    }).then (res => res.json().then(data => ({status: res.status, body: data})))
+    .then(({status, body}) => {
+        if(status >= 400) {
+            info_msg(body.error || body.message, 'error');
+            btn.innerHTML = originalText;
+        } else {
+            info_msg(body.message, 'success');
+            setTimeout(() => location.reload(), 1500);
+        }
     })
-    .catch(err => console.error(err))
+    .catch(err => {
+        console.error(err);
+        btn.innerHTML = originalText;
+    });
 }
