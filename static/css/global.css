@@ -54,12 +54,12 @@ main {
 
 /* Glassmorphism helpers */
 .glass-panel {
-    background: var(--bg-glass);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(0, 0, 0, 0.08); /* Darker border for light theme */
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(15, 23, 42, 0.12); /* More visible border */
     border-radius: var(--border-radius);
-    box-shadow: var(--shadow-soft);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); /* Added soft shadow */
 }
 
 /* Utility buttons */
@@ -143,8 +143,9 @@ main {
     background: var(--bg-surface);
     border-radius: var(--border-radius);
     padding: 24px;
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid rgba(15, 23, 42, 0.08); /* More visible border */
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 .modern-card:hover {
     transform: translateY(-5px);

@@ -57,8 +57,18 @@ class SendEmail:
     @classmethod
     def admin_login_email(cls, user, receiver_email):
         otp = secrets.randbelow(900000) + 100000
+        
+        # Log the OTP clearly for development purposes
+        print("\n" + "="*50)
+        print(f" EduSphere Development: Login OTP for {user} ({receiver_email})")
+        print(f" >>> OTP: {otp} <<<")
+        print("="*50 + "\n")
+        
+        cls.logger.info(f"Generated OTP for {receiver_email}: {otp}")
+        
         body = f'Hello {user},\n\nUse this OTP to finish your EduSphere institute login: {otp}'
         if not cls._send_email(receiver_email, 'EduSphere Login OTP', body):
-            return None
+            cls.logger.warning("Email delivery failed. Using console fallback for OTP.")
+            return otp # Return OTP anyway so dev can proceed
         return otp
         

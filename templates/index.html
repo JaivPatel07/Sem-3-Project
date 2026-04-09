@@ -9,10 +9,10 @@
     display: flex;
     align-items: center;
     background: radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.15), transparent 40%),
-          radial-gradient(circle at 20% 80%, rgba(168, 85, 247, 0.1), transparent 40%);
+      radial-gradient(circle at 20% 80%, rgba(168, 85, 247, 0.1), transparent 40%);
     padding: 80px 0;
   }
-  
+
   .hero-title {
     font-size: 4rem;
     font-weight: 800;
@@ -20,7 +20,7 @@
     margin-bottom: 24px;
     letter-spacing: -0.02em;
   }
-  
+
   .feature-icon-box {
     width: 60px;
     height: 60px;
@@ -34,49 +34,54 @@
     margin-bottom: 20px;
     color: var(--accent-primary);
   }
-  
+
   .course-card-home {
     background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255,255,255,0.05);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: var(--border-radius);
     padding: 30px;
     transition: all 0.3s;
     height: 100%;
   }
+
   .course-card-home:hover {
     background: rgba(255, 255, 255, 0.04);
     transform: translateY(-5px);
     border-color: rgba(99, 102, 241, 0.3);
     box-shadow: var(--shadow-glow);
   }
-  
+
   .reviewer-avatar {
     width: 48px;
     height: 48px;
     border-radius: 50%;
     background: var(--accent-gradient);
-    display: flex; /* correct syntax */
+    display: flex;
+    /* correct syntax */
     align-items: center;
     justify-content: center;
     font-weight: bold;
   }
-  
+
   .accordion-button {
     background: transparent !important;
     color: var(--text-primary) !important;
     box-shadow: none !important;
     font-weight: 600;
   }
+
   .accordion-button::after {
     filter: invert(1);
   }
+
   .accordion-item {
     background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255,255,255,0.05);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: var(--border-radius) !important;
     margin-bottom: 15px;
     overflow: hidden;
   }
+
   .accordion-body {
     color: var(--text-secondary);
   }
@@ -93,15 +98,13 @@
   <div class="container animate-fade-up">
     <div class="row align-items-center">
       <div class="col-lg-6 mb-5 mb-lg-0">
-        <span class="badge border border-secondary text-secondary rounded-pill px-3 py-2 mb-4">
-          <i class="bi bi-stars text-warning me-1"></i> Learn from top industry experts
-        </span>
         <h1 class="hero-title">
-          Master New Skills with <br/>
+          Master New Skills with <br />
           <span class="text-gradient">Expert-Led Courses</span>
         </h1>
         <p class="text-secondary fs-5 mb-5" style="max-width: 500px; margin: 0 auto 0 0;">
-          Elevate your career with practical, real-world skills. Learn anytime, anywhere with industry-ready content tailored for your success.
+          Elevate your career with practical, real-world skills. Learn anytime, anywhere with industry-ready content
+          tailored for your success.
         </p>
         <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
           <a href="#courses" class="btn-premium px-4 py-3">Explore Courses</a>
@@ -110,7 +113,8 @@
       </div>
       <div class="col-lg-6 position-relative d-none d-lg-block">
         <!-- Decorative elements for hero -->
-        <div class="glass-panel p-4 position-absolute shadow-glow" style="top: 10%; right: 10%; z-index: 2; transform: rotate(5deg);">
+        <div class="glass-panel p-4 position-absolute shadow-glow"
+          style="top: 10%; right: 10%; z-index: 2; transform: rotate(5deg);">
           <div class="d-flex align-items-center gap-3">
             <div class="bg-success rounded-circle p-3 text-white"><i class="bi bi-check-lg fs-4"></i></div>
             <div>
@@ -119,7 +123,8 @@
             </div>
           </div>
         </div>
-        <div class="glass-panel p-4 position-absolute shadow-glow" style="bottom: 10%; left: 0; z-index: 2; transform: rotate(-3deg);">
+        <div class="glass-panel p-4 position-absolute shadow-glow"
+          style="bottom: 10%; left: 0; z-index: 2; transform: rotate(-3deg);">
           <div class="d-flex align-items-center gap-3">
             <div class="bg-warning rounded-circle p-3 text-dark"><i class="bi bi-star-fill fs-4"></i></div>
             <div>
@@ -129,8 +134,10 @@
           </div>
         </div>
         <!-- Abstract visual placeholder -->
-        <div class="rounded-circle mx-auto" style="width: 400px; height: 400px; background: radial-gradient(circle, var(--bg-surface) 0%, transparent 100%); display:flex; align-items:center; justify-content:center; border: 1px dashed rgba(255,255,255,0.1);">
-          <i class="bi bi-laptop" style="font-size: 8rem; color: var(--accent-primary); opacity: 0.8; filter: drop-shadow(0 0 20px rgba(99,102,241,0.5));"></i>
+        <div class="rounded-circle mx-auto"
+          style="width: 400px; height: 400px; background: radial-gradient(circle, var(--bg-surface) 0%, transparent 100%); display:flex; align-items:center; justify-content:center; border: 1px dashed rgba(255,255,255,0.1);">
+          <i class="bi bi-laptop"
+            style="font-size: 8rem; color: var(--accent-primary); opacity: 0.8; filter: drop-shadow(0 0 20px rgba(99,102,241,0.5));"></i>
         </div>
       </div>
     </div>
@@ -143,7 +150,10 @@
     <div class="modern-card text-center py-5 px-sm-5 mx-auto" style="max-width: 900px;">
       <h2 class="fw-bold mb-4">About EduSphere</h2>
       <p class="text-secondary fs-5 lh-lg mb-0">
-        Welcome to EduSphere, a learning platform built for ambitious individuals who want to grow beyond traditional education. We help you learn practical, real-world skills applicable to modern careers. From technology to business, our courses are designed by seasoned mentors. Whether you're starting fresh or upskilling, EduSphere provides the launchpad for your next big leap.
+        Welcome to EduSphere, a learning platform built for ambitious individuals who want to grow beyond traditional
+        education. We help you learn practical, real-world skills applicable to modern careers. From technology to
+        business, our courses are designed by seasoned mentors. Whether you're starting fresh or upskilling, EduSphere
+        provides the launchpad for your next big leap.
       </p>
     </div>
   </div>
@@ -201,27 +211,32 @@
           <div class="feature-icon-box flex-shrink-0"><i class="bi bi-award"></i></div>
           <div>
             <h5 class="fw-bold">Expert Instructors</h5>
-            <p class="text-secondary">Learn from industry veterans who bring real-world experience and passion into every lesson.</p>
+            <p class="text-secondary">Learn from industry veterans who bring real-world experience and passion into
+              every lesson.</p>
           </div>
         </div>
         <div class="d-flex mb-4 gap-3">
           <div class="feature-icon-box flex-shrink-0"><i class="bi bi-patch-check"></i></div>
           <div>
             <h5 class="fw-bold">Shareable Certificates</h5>
-            <p class="text-secondary">Earn a certified credential for every course you finish. Add it straight to your resume.</p>
+            <p class="text-secondary">Earn a certified credential for every course you finish. Add it straight to your
+              resume.</p>
           </div>
         </div>
         <div class="d-flex gap-3">
           <div class="feature-icon-box flex-shrink-0"><i class="bi bi-camera-video"></i></div>
           <div>
             <h5 class="fw-bold">High Quality Video</h5>
-            <p class="text-secondary">Enjoy crystal-clear HD video lessons and downloadable resources for offline learning.</p>
+            <p class="text-secondary">Enjoy crystal-clear HD video lessons and downloadable resources for offline
+              learning.</p>
           </div>
         </div>
       </div>
       <div class="col-lg-6 d-none d-lg-block">
         <div class="modern-card p-2 text-center shadow-glow border-0">
-          <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Students Learning" class="img-fluid rounded" style="opacity: 0.8;">
+          <img
+            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+            alt="Students Learning" class="img-fluid rounded" style="opacity: 0.8;">
         </div>
       </div>
     </div>
@@ -244,31 +259,36 @@
         </h2>
         <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
           <div class="accordion-body">
-            Browse our catalog, select a course you're interested in, and click "Enroll". You must be logged in to your account.
+            Browse our catalog, select a course you're interested in, and click "Enroll". You must be logged in to your
+            account.
           </div>
         </div>
       </div>
       <div class="accordion-item">
         <h2 class="accordion-header">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+            data-bs-target="#collapseTwo">
             Are the certificates recognized?
           </button>
         </h2>
         <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
           <div class="accordion-body">
-            Yes! Our certificates provide proof of completion and can be easily shared on platforms like LinkedIn to showcase your skills.
+            Yes! Our certificates provide proof of completion and can be easily shared on platforms like LinkedIn to
+            showcase your skills.
           </div>
         </div>
       </div>
       <div class="accordion-item">
         <h2 class="accordion-header">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+            data-bs-target="#collapseThree">
             Can I access courses on mobile?
           </button>
         </h2>
         <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
           <div class="accordion-body">
-            Absolutely. EduSphere is fully responsive and designed to provide a premium learning experience on mobile, tablet, and desktop.
+            Absolutely. EduSphere is fully responsive and designed to provide a premium learning experience on mobile,
+            tablet, and desktop.
           </div>
         </div>
       </div>
